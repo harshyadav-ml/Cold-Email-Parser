@@ -1,0 +1,787 @@
+<!DOCTYPE html><html class="dark" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="web_dashboard" name="shell-type">
+<title>Vector — Outreach Review Stream</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Geist', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: #000000;
+        color: #EDEDED;
+      }
+      body {
+        overscroll-behavior: none;
+      }
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-black font-sans text-sm text-neutral-200 antialiased selection:bg-white selection:text-black min-h-screen">
+<!-- Dynamic Notification Toast Container -->
+<div class="fixed top-20 right-6 z-50 flex flex-col gap-2 pointer-events-none" id="toast-container"></div>
+<!-- Sleek Vercel/Resend Minimal Top Navbar -->
+<header class="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-black/80 backdrop-blur-xl">
+<div class="max-w-[1500px] mx-auto px-6 h-14 flex items-center justify-between">
+<!-- Left: Minimal Monolith Brand / Breadcrumb -->
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2.5">
+<!-- Geometric vector mark -->
+<div class="w-7 h-7 rounded-md bg-white text-black flex items-center justify-center font-bold tracking-tighter text-xs">
+<svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+<path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13.5h-13L12 6.5z"></path>
+</svg>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-medium tracking-tight text-white text-sm">THE CLOSER</span>
+<span class="text-neutral-600">/</span>
+<span class="text-neutral-400 text-xs font-mono uppercase tracking-wider">Outreach Engine</span>
+</div>
+</div>
+<div class="hidden md:flex items-center gap-2 pl-3 border-l border-white/[0.08]"><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-white/[0.08] bg-white/[0.02] text-[11px] font-mono text-neutral-300"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]"></span> Agents Online</span><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-white/[0.08] bg-white/[0.02] text-[11px] font-mono text-neutral-400">Gmail API / SMTP</span><span class="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-white/[0.08] bg-white/[0.02] text-[11px] font-mono text-neutral-400">Groq LLaMA-3.3-70B</span></div>
+</div>
+<!-- Right: Controls & User -->
+<div class="flex items-center gap-3">
+<!-- DRY_RUN Pill Indicator in Navbar -->
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-white/[0.08] bg-white/[0.02] text-xs font-mono text-neutral-300">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]" id="nav-dry-run-dot"></span>
+<span id="nav-dry-run-label" class="">DRY_RUN</span>
+</div>
+<div class="h-4 w-px bg-white/[0.08] mx-1 hidden sm:block"></div>
+<!-- User profile -->
+<div class="flex items-center gap-2.5 pl-1"><div class="flex flex-col text-right hidden sm:flex"><span class="text-xs font-medium text-white leading-tight">Harsh Yadav</span><span class="text-[11px] font-mono text-neutral-500">AI Engineer</span></div><div class="w-7 h-7 rounded-full bg-neutral-900 border border-white/[0.12] text-neutral-300 flex items-center justify-center text-xs font-mono font-medium">HY</div></div>
+</div>
+</div>
+</header>
+<!-- Workspace Container (Full-Width Minimalist) -->
+<main class="w-full max-w-[1500px] mx-auto px-6 py-7">
+<div class="flex flex-col gap-6">
+<!-- 1. Top System Header & Telemetry Controls -->
+<div class="p-5 rounded-xl border border-white/[0.08] bg-[#0A0A0A] bg-gradient-to-b from-white/[0.03] to-transparent flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+<!-- Sprint Title and Context -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center gap-2 text-xs font-mono text-neutral-500 flex-wrap">
+<span class="hover:text-white transition-colors cursor-pointer">Runs</span>
+<span class="">/</span>
+<span class="text-neutral-300 px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.06]">data/contacts.json</span>
+<span class="">/</span>
+<span class="text-neutral-200 flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]"></span>
+              Human-in-the-Loop Review Queue
+            </span>
+</div>
+<div class="flex items-center gap-3 mt-1 flex-wrap">
+<h1 class="text-lg font-semibold text-white tracking-tight">Q2 Growth Sprint #4</h1>
+<span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-full border border-white/[0.12] bg-white/[0.04] text-neutral-300">
+              STAGE: SYNTHESIS
+            </span>
+<div class="h-4 w-px bg-white/[0.08] mx-1 hidden sm:block"></div>
+<!-- Review Pipeline Gauge -->
+<div class="flex items-center gap-2.5">
+<span class="text-xs font-mono text-neutral-500 uppercase tracking-wider">Pipeline:</span>
+<div class="w-32 bg-neutral-900 border border-white/[0.08] h-1.5 rounded-full overflow-hidden">
+<div class="bg-white h-full rounded-full w-[28%] transition-all duration-500" id="global-progress-bar"></div>
+</div>
+<span class="text-xs font-mono text-neutral-300" id="progress-indicator">34 / 120 <span class="text-neutral-500 font-normal">(28% cleared)</span></span>
+</div>
+</div>
+</div>
+<!-- Worker Telemetry Chips & Execution Switch -->
+<div class="flex items-center gap-2.5 flex-wrap self-start xl:self-auto">
+<!-- Execution Mode Toggle -->
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg border border-white/[0.08] bg-[#0E0E0E]">
+<div class="flex flex-col">
+<span class="text-[10px] font-mono text-neutral-500 uppercase tracking-wider">Mode</span>
+<span class="text-xs font-mono font-medium text-neutral-200" id="dry-run-status-text">DRY_RUN ACTIVE</span>
+</div>
+<button aria-checked="true" class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full bg-neutral-800 border border-white/[0.1] p-0.5 transition-colors focus:outline-none" id="toggle-dry-run-btn" role="switch" type="button">
+<span class="translate-x-4 pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform duration-200" id="dry-run-thumb"></span>
+</button>
+</div>
+<!-- Resend Gateway Quota -->
+<div class="flex items-center gap-2.5 px-3 py-2 rounded-lg border border-white/[0.08] bg-[#0E0E0E]"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]"></span><div class="flex flex-col"><span class="text-[10px] font-mono text-neutral-500 uppercase tracking-wider">Session Limit</span><span class="text-xs font-mono text-neutral-300">0 / 5 Live Sends</span></div></div>
+<!-- LLM Core Spec -->
+<div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/[0.08] bg-[#0E0E0E]"><span class="material-symbols-outlined text-[16px] text-neutral-400">psychology</span><div class="flex flex-col"><span class="text-[10px] font-mono text-neutral-500 uppercase tracking-wider">Core</span><span class="text-xs font-mono text-neutral-300">Groq LLaMA-3.3-70B <span class="text-neutral-500">T:0.3</span></span></div></div>
+<!-- Quick Refresh Button -->
+<button class="p-2.5 rounded-lg border border-white/[0.08] bg-[#0E0E0E] hover:bg-neutral-800 text-neutral-400 hover:text-white transition-colors" id="sync-telemetry-btn" title="Refresh Agents &amp; Queue">
+<span class="material-symbols-outlined text-[16px]">sync</span>
+</button>
+</div>
+</div>
+<!-- 2. Metrics Ribbon (Minimal Monochrome Cards) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- KPI 1 -->
+<div class="p-4 rounded-xl border border-white/[0.08] bg-[#0A0A0A] bg-gradient-to-b from-white/[0.04] to-transparent flex flex-col justify-between"><div class="flex items-center justify-between text-xs"><span class="font-mono text-neutral-500 uppercase tracking-wider text-[11px]">Total Processed</span><span class="font-mono text-[11px] text-neutral-400 border border-white/[0.08] px-1.5 py-0.5 rounded bg-white/[0.02]">+18% today</span></div><div class="flex items-baseline justify-between mt-3"><span class="text-3xl font-semibold tracking-tight text-white font-mono">142</span><svg class="w-20 h-7 text-neutral-400 overflow-visible" fill="none" viewBox="0 0 100 30"><path d="M0 24 Q 15 22, 25 25 T 50 14 T 75 18 T 100 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.75"></path><circle cx="100" cy="4" fill="#FFFFFF" r="2.5"></circle></svg></div><div class="flex items-center justify-between text-[11px] font-mono text-neutral-500 pt-3 border-t border-white/[0.05] mt-3"><span class="">Pool: 250</span><span class="text-neutral-300">56.8% coverage</span></div></div>
+<!-- KPI 2 -->
+<div class="p-4 rounded-xl border border-white/[0.08] bg-[#0A0A0A] bg-gradient-to-b from-white/[0.04] to-transparent flex flex-col justify-between"><div class="flex items-center justify-between text-xs"><span class="font-mono text-neutral-500 uppercase tracking-wider text-[11px]">Successful Dispatches</span><span class="font-mono text-[11px] text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded bg-emerald-500/[0.06]">62.6% rate</span></div><div class="flex items-baseline justify-between mt-3"><span class="text-3xl font-semibold tracking-tight text-white font-mono">89</span><svg class="w-7 h-7 text-white" viewBox="0 0 36 36"><path class="text-neutral-800" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="2.5"></path><path class="text-emerald-400" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="62.6, 100" stroke-linecap="round" stroke-width="2.5"></path></svg></div><div class="flex items-center justify-between text-[11px] font-mono text-neutral-500 pt-3 border-t border-white/[0.05] mt-3"><span class="">0 Bounces detected</span><span class="text-neutral-300">99.8% inbox score</span></div></div>
+<!-- KPI 3 -->
+<div class="p-4 rounded-xl border border-white/[0.08] bg-[#0A0A0A] bg-gradient-to-b from-white/[0.04] to-transparent flex flex-col justify-between"><div class="flex items-center justify-between text-xs"><span class="font-mono text-neutral-500 uppercase tracking-wider text-[11px]">Review Queue</span><span class="font-mono text-[11px] text-neutral-300 border border-white/[0.08] px-1.5 py-0.5 rounded bg-white/[0.02] flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]"></span> Human check</span></div><div class="flex items-baseline justify-between mt-3"><span class="text-3xl font-semibold tracking-tight text-white font-mono" id="kpi-queue-count">38</span><div class="text-right text-[11px] font-mono text-neutral-500"><span class="text-neutral-300">~4m per rev</span><div class="">SLA: &lt; 2h</div></div></div><div class="flex items-center justify-between text-[11px] font-mono text-neutral-500 pt-3 border-t border-white/[0.05] mt-3"><span class="">Avg Quality: 94.2/100</span><span class="text-neutral-300">3 Flagged</span></div></div>
+<!-- KPI 4 -->
+<div class="p-4 rounded-xl border border-white/[0.08] bg-[#0A0A0A] bg-gradient-to-b from-white/[0.04] to-transparent flex flex-col justify-between"><div class="flex items-center justify-between text-xs"><span class="font-mono text-neutral-500 uppercase tracking-wider text-[11px]">Exclusions &amp; Policy</span><span class="font-mono text-[11px] text-neutral-500 border border-white/[0.08] px-1.5 py-0.5 rounded">10.5% rate</span></div><div class="flex items-baseline justify-between mt-3"><span class="text-3xl font-semibold tracking-tight text-white font-mono">15</span><span class="material-symbols-outlined text-neutral-600 text-[24px]">shield</span></div><div class="flex items-center justify-between text-[11px] font-mono text-neutral-500 pt-3 border-t border-white/[0.05] mt-3"><span class="">9 Do-Not-Contact</span><span class="text-neutral-400">6 Low Intent</span></div></div>
+</div>
+<!-- 3. Main Split-Pane Workspace -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+<!-- LEFT PANE: Contact Queue (Col span 5 on desktop) -->
+<div class="lg:col-span-5 flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-[#0A0A0A] bg-gradient-to-b from-white/[0.03] to-transparent p-4">
+<!-- Queue Header with Search & Filter Controls -->
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-medium text-white text-sm">Review Stream</span>
+<span class="px-2 py-0.5 rounded-full border border-white/[0.08] bg-white/[0.02] text-neutral-400 font-mono text-xs" id="queue-badge-count">3 Candidates</span>
+</div>
+<!-- Sort Selector -->
+<div class="flex items-center gap-1.5 text-xs font-mono text-neutral-500">
+<span class="">Sort:</span>
+<select class="bg-[#0E0E0E] border border-white/[0.08] text-neutral-200 rounded px-2 py-1 text-xs font-mono focus:outline-none focus:border-white/20 cursor-pointer" id="sort-selector">
+<option value="intent_desc">Intent Score (High-Low)</option>
+<option value="recent">Generated (Newest)</option>
+<option value="urgency">Compliance Urgency</option>
+</select>
+</div>
+</div>
+<!-- Search Input Bar -->
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-neutral-500">search</span>
+<input class="w-full bg-[#0E0E0E] border border-white/[0.08] text-neutral-200 placeholder:text-neutral-600 text-xs pl-8 pr-8 py-2 rounded-lg focus:outline-none focus:border-white/25 transition-colors" id="contact-search-input" placeholder="Filter by name, company, intent keyword..." type="text">
+<button class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white" id="clear-search-btn">
+<span class="material-symbols-outlined text-[14px]">cancel</span>
+</button>
+</div>
+<!-- Queue Filter Tabs (Monochrome Pill Styles) -->
+<div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-xs font-mono">
+<button class="queue-filter-btn px-2.5 py-1 rounded-md bg-white text-black font-medium transition-all" data-filter="all">All (38)</button>
+<button class="queue-filter-btn px-2.5 py-1 rounded-md border border-white/[0.08] bg-white/[0.02] text-neutral-400 hover:text-white hover:bg-neutral-900 transition-all" data-filter="pending">Pending (19)</button>
+<button class="queue-filter-btn px-2.5 py-1 rounded-md border border-white/[0.08] bg-white/[0.02] text-neutral-400 hover:text-white hover:bg-neutral-900 transition-all" data-filter="draft">Dry Run (14)</button>
+<button class="queue-filter-btn px-2.5 py-1 rounded-md border border-white/[0.08] bg-white/[0.02] text-neutral-400 hover:text-white hover:bg-neutral-900 transition-all" data-filter="risk">Risk Flag (5)</button>
+</div>
+</div>
+<!-- Batch Action Quick Bar -->
+<div class="flex items-center justify-between px-3 py-2 rounded-lg border border-white/[0.08] bg-[#0E0E0E] text-xs font-mono">
+<div class="flex items-center gap-2">
+<input class="w-3.5 h-3.5 rounded bg-black border-neutral-700 text-white cursor-pointer accent-white focus:ring-0 focus:ring-offset-0" id="select-all-checkbox" type="checkbox">
+<label class="text-neutral-400 cursor-pointer text-xs" for="select-all-checkbox">Select All (3 visible)</label>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="px-2.5 py-1 rounded border border-white/[0.08] bg-neutral-900 text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors text-xs" id="batch-approve-btn">Quick Approve</button>
+<button class="px-2 py-1 rounded text-neutral-500 hover:text-rose-400 transition-colors text-xs" id="batch-skip-btn">Skip</button>
+</div>
+</div>
+<!-- Scrollable Candidate Cards Stream -->
+<div class="flex flex-col gap-2 max-h-[600px] overflow-y-auto pr-0.5" id="candidate-list-container">
+<!-- Candidate Card 1 (ACTIVE / SELECTED) -->
+<div class="candidate-card p-3 rounded-lg border border-white/[0.08] border-l border-white bg-white/[0.04] cursor-pointer transition-all duration-150 relative group" data-id="card-1" data-intent="98" data-status="pending">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-2.5">
+<input checked="" class="candidate-checkbox mt-0.5 w-3.5 h-3.5 rounded bg-black border-neutral-700 text-white cursor-pointer accent-white focus:ring-0" type="checkbox">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-medium text-white text-sm leading-snug">Elena Rostova</span>
+<span class="font-mono text-[11px] text-emerald-400">98% Fit</span>
+</div>
+<span class="text-xs text-neutral-400">VP of Data Engineering @ Synthetix AI</span>
+<span class="font-mono text-[11px] text-neutral-600">synthetix.ai</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full border border-white/[0.08] bg-white/[0.02] text-neutral-300 font-mono text-[11px] whitespace-nowrap">
+                  Pending
+                </span>
+</div>
+<!-- Persona Tags -->
+<div class="flex items-center gap-1.5 flex-wrap mt-2 pl-6">
+<span class="px-1.5 py-0.5 rounded bg-neutral-900 border border-white/[0.06] text-neutral-400 font-mono text-[10px]">FinTech Series B</span>
+<span class="px-1.5 py-0.5 rounded bg-neutral-900 border border-white/[0.06] text-neutral-400 font-mono text-[10px]">Snowflake User</span>
+<span class="px-1.5 py-0.5 rounded bg-neutral-900 border border-white/[0.06] text-neutral-400 font-mono text-[10px]">AI Migration</span>
+</div>
+<div class="flex items-center justify-between pt-2 mt-2 font-mono text-[11px] text-neutral-500 pl-6 border-t border-white/[0.04]">
+<span class="flex items-center gap-1 text-neutral-400">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]"></span> Agent alpha-01 • 4m ago
+                </span>
+<span class="text-neutral-500 group-hover:text-neutral-300 transition-colors">Preview payload →</span>
+</div>
+</div>
+<!-- Candidate Card 2 -->
+<div class="candidate-card p-3 rounded-lg border border-white/[0.06] bg-[#0E0E0E] hover:border-white/[0.12] hover:bg-white/[0.02] cursor-pointer transition-all duration-150 relative group" data-id="card-2" data-intent="92" data-status="draft">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-2.5">
+<input class="candidate-checkbox mt-0.5 w-3.5 h-3.5 rounded bg-black border-neutral-700 text-white cursor-pointer accent-white focus:ring-0" type="checkbox">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-medium text-white text-sm leading-snug">Marcus Vance</span>
+<span class="font-mono text-[11px] text-neutral-300">92% Fit</span>
+</div>
+<span class="text-xs text-neutral-400">Head of Infrastructure @ CloudScale Labs</span>
+<span class="font-mono text-[11px] text-neutral-600">cloudscale.io</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full border border-white/[0.08] bg-white/[0.02] text-neutral-400 font-mono text-[11px] whitespace-nowrap">
+                  Dry Run
+                </span>
+</div>
+<!-- Persona Tags -->
+<div class="flex items-center gap-1.5 flex-wrap mt-2 pl-6">
+<span class="px-1.5 py-0.5 rounded bg-neutral-900 border border-white/[0.06] text-neutral-400 font-mono text-[10px]">Kubernetes</span>
+<span class="px-1.5 py-0.5 rounded bg-neutral-900 border border-white/[0.06] text-neutral-400 font-mono text-[10px]">High Latency</span>
+<span class="px-1.5 py-0.5 rounded bg-neutral-900 border border-white/[0.06] text-neutral-400 font-mono text-[10px]">SOC2</span>
+</div>
+<div class="flex items-center justify-between pt-2 mt-2 font-mono text-[11px] text-neutral-500 pl-6 border-t border-white/[0.04]">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">schedule</span> Queued for 09:30 AM
+                </span>
+<span class="text-neutral-500 group-hover:text-neutral-300 transition-colors">Ready</span>
+</div>
+</div>
+<!-- Candidate Card 3 -->
+<div class="candidate-card p-3 rounded-lg border border-white/[0.06] bg-[#0E0E0E] hover:border-white/[0.12] hover:bg-white/[0.02] cursor-pointer transition-all duration-150 relative group" data-id="card-3" data-intent="84" data-status="risk">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-2.5">
+<input class="candidate-checkbox mt-0.5 w-3.5 h-3.5 rounded bg-black border-neutral-700 text-white cursor-pointer accent-white focus:ring-0" type="checkbox">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-medium text-white text-sm leading-snug">Sarah Chen-Wu</span>
+<span class="font-mono text-[11px] text-amber-400">84% Fit</span>
+</div>
+<span class="text-xs text-neutral-400">Chief Technology Officer @ NexaHealth</span>
+<span class="font-mono text-[11px] text-neutral-600">nexahealth.co</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full border border-rose-500/30 bg-rose-500/[0.08] text-rose-400 font-mono text-[11px] whitespace-nowrap">
+                  Risk Review
+                </span>
+</div>
+<!-- Persona Tags -->
+<div class="flex items-center gap-1.5 flex-wrap mt-2 pl-6">
+<span class="px-1.5 py-0.5 rounded bg-neutral-900 border border-white/[0.06] text-neutral-400 font-mono text-[10px]">Healthcare HIPAA</span>
+<span class="px-1.5 py-0.5 rounded bg-neutral-900 border border-white/[0.06] text-neutral-400 font-mono text-[10px]">Legacy Stack</span>
+<span class="px-1.5 py-0.5 rounded bg-neutral-900 border border-white/[0.06] text-neutral-400 font-mono text-[10px]">Budget Approver</span>
+</div>
+<div class="flex items-center justify-between pt-2 mt-2 font-mono text-[11px] text-neutral-500 pl-6 border-t border-white/[0.04]">
+<span class="flex items-center gap-1 text-rose-400">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]"></span> Flagged: HIPAA check
+                </span>
+<span class="text-neutral-500 group-hover:text-neutral-300 transition-colors">Override</span>
+</div>
+</div>
+</div>
+<!-- Pagination Footer -->
+<div class="flex items-center justify-between text-xs font-mono text-neutral-500 pt-2 px-1 border-t border-white/[0.05]">
+<span class="">Showing 3 of 38</span>
+<div class="flex items-center gap-1">
+<button class="px-2 py-0.5 rounded border border-white/[0.08] bg-[#0E0E0E] hover:bg-neutral-800 text-neutral-300">←</button>
+<span class="px-1 text-neutral-400">Page 1 of 13</span>
+<button class="px-2 py-0.5 rounded border border-white/[0.08] bg-[#0E0E0E] hover:bg-neutral-800 text-neutral-300">→</button>
+</div>
+</div>
+</div>
+<!-- RIGHT PANE: Email Reviewer & Studio (Col span 7 on desktop) -->
+<div class="lg:col-span-7 flex flex-col gap-4 rounded-xl border border-white/[0.08] bg-[#0A0A0A] bg-gradient-to-b from-white/[0.03] to-transparent p-5">
+<!-- Profile & Signals Banner -->
+<div class="flex flex-col sm:flex-row items-start justify-between gap-4 p-4 rounded-lg border border-white/[0.08] bg-[#0E0E0E]">
+<div class="flex items-start gap-3.5">
+<img class="w-12 h-12 rounded-lg object-cover border border-white/[0.1] shrink-0" data-alt="High quality corporate portrait photograph of Elena Rostova" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWKFtohXzu41epQDEshc4hLUbmj92Y3WGX-ig9gdv96IZsyK-xloTfQ8O6tx6wlpq82HPWkQiElwkARiR2OEK29prYxAlTJb91pxSSAIsdiOuCUPbkpgPnOWzB9LRlLUtGVU-GgGGfPs16Mi9OlkmKCdg99eTWmMK0j-tpqL7d3aBvghlpwEWCqsL8NPO7fo0EQ48oKmBOdCLkLyTysY688ySkA_lpa5rrnvXQxWwU0G5BaaFU6__hHw">
+<div class="flex flex-col">
+<div class="flex items-center gap-2 flex-wrap">
+<h2 class="text-base font-semibold text-white tracking-tight" id="active-lead-name">Elena Rostova</h2>
+<span class="px-2 py-0.5 rounded-full border border-white/[0.08] bg-white/[0.04] text-neutral-300 font-mono text-[11px]">Tier-1 Account</span>
+<a class="text-neutral-500 hover:text-white transition-colors" href="#linkedin" title="LinkedIn Profile">
+<span class="material-symbols-outlined text-[16px]">account_box</span>
+</a>
+<a class="text-neutral-500 hover:text-white transition-colors" href="#github" title="GitHub Contributions">
+<span class="material-symbols-outlined text-[16px]">code</span>
+</a>
+</div>
+<span class="text-xs text-neutral-400">VP of Data Engineering • Synthetix AI</span>
+<!-- Real-Time Signals -->
+<div class="flex items-center gap-3 text-xs font-mono text-neutral-400 mt-2 flex-wrap">
+<span class="flex items-center gap-1.5 text-neutral-300">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]"></span>
+                    $45M Series B (May 2024)
+                  </span>
+<span class="text-neutral-600">•</span>
+<span class="flex items-center gap-1 text-neutral-400">
+<span class="material-symbols-outlined text-[13px]">group_add</span> Hiring 12 MLOps
+                  </span>
+</div>
+</div>
+</div>
+<!-- Match Score Badge -->
+<div class="flex flex-col sm:items-end items-start shrink-0">
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/[0.06] text-emerald-400 font-mono text-xs font-medium">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+                98% Match
+              </div>
+<span class="text-[11px] font-mono text-neutral-500 mt-1">Target: Arch Decision</span>
+</div>
+</div>
+<!-- Detected Infra Pills -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 px-3.5 py-2.5 rounded-lg border border-white/[0.08] bg-[#0E0E0E] text-xs"><div class="flex items-baseline gap-2 flex-wrap"><span class="text-neutral-400 font-mono text-[10px] uppercase tracking-wider font-semibold">PERSONALIZATION HOOK:</span><span class="text-neutral-300 font-sans text-xs leading-snug">Hook: Published technical deep dive on real-time streaming pipeline latency &amp; migration from Snowflake • <span class="font-mono text-neutral-400">portfolio_url: synthetix.ai/blog/real-time-infra</span></span></div><a class="font-mono text-[11px] text-neutral-300 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] px-2 py-0.5 rounded transition-colors self-start sm:self-auto shrink-0 flex items-center gap-1" href="https://synthetix.ai/blog/real-time-infra" target="_blank"><span class="text-neutral-500">visit:</span> synthetix.ai/blog/real-time-infra</a></div>
+<!-- Subject Line Section -->
+<div class="flex flex-col gap-1.5"><div class="flex items-center justify-between"><label class="text-[11px] font-mono text-neutral-400 uppercase tracking-wider" for="email-subject-input">Subject Line Orchestration</label><span class="font-mono text-[11px] text-neutral-500">58 chars</span></div><div class="relative w-full"><input class="w-full bg-white/[0.02] border border-white/[0.08] focus:border-white/30 text-sm text-white font-medium px-3 py-1.5 rounded transition-colors focus:outline-none placeholder:text-neutral-600" id="email-subject-input" placeholder="Enter compelling outreach subject line..." type="text" value="Quick question regarding Synthetix's dbt pipeline latency"></div></div>
+<!-- Email Body Editor Area -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-[11px] font-mono text-neutral-400 uppercase tracking-wider">Payload #1</span>
+<span class="px-1.5 py-0.5 rounded border border-white/[0.08] bg-white/[0.02] text-neutral-400 font-mono text-[11px]">Groq LLaMA-3.3 Synthesized</span>
+</div>
+<!-- Word Count & Reading Time Gauge -->
+<div class="flex items-center gap-3 font-mono text-xs">
+<span class="text-neutral-500 flex items-center gap-1" id="reading-time-display">
+<span class="material-symbols-outlined text-[13px]">schedule</span> 28s read
+                </span>
+<div class="flex items-center gap-2">
+<span class="text-neutral-300" id="word-count-badge">108 / 150 words</span>
+<div class="w-14 bg-neutral-900 border border-white/[0.08] h-1.5 rounded-full overflow-hidden">
+<div class="bg-white h-full w-[72%] transition-all" id="word-count-bar"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Code/Text Area Shell -->
+<div class="relative rounded-lg overflow-hidden border border-white/[0.08] bg-black">
+<!-- Interpolated Variable Pills Overlay Bar -->
+<div class="flex items-center gap-2 px-3 py-1.5 border-b border-white/[0.06] bg-[#0E0E0E] text-[11px] font-mono text-neutral-400 flex-wrap"><span class="text-neutral-500">Tokens:</span><span class="px-1.5 py-0.5 rounded bg-black border border-white/[0.08] text-neutral-300">{{company_name}}</span><span class="px-1.5 py-0.5 rounded bg-black border border-white/[0.08] text-neutral-300">{{target_infra}}</span><span class="px-1.5 py-0.5 rounded bg-black border border-white/[0.08] text-neutral-300">{{pain_point}}</span></div>
+<textarea class="w-full bg-transparent text-neutral-100 font-sans text-[15px] leading-relaxed p-4 focus:outline-none resize-y selection:bg-white selection:text-black" id="email-body-editor" rows="9">Hi Elena,
+
+Noticed Synthetix's recent expansion into real-time feature stores following your Series B announcement last month.
+
+Most VP Data Eng teams migrating from batch dbt to streaming pipelines face a 3x increase in warehouse egress costs and compute lag.
+
+We built an autonomous caching gateway that sits between Kafka and Snowflake, reducing sync latency from 14 minutes down to sub-800ms while cutting query compute by 42%.
+
+Would you be open to a 7-minute benchmark demo this Thursday around 2pm PT?
+
+Best,
+Alex</textarea>
+</div>
+</div>
+<!-- Deliverability & Quality Assessment -->
+<div class="p-3.5 rounded-lg border border-white/[0.08] bg-[#0E0E0E] flex flex-col gap-2.5"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-neutral-300 text-[18px]">verified_user</span><span class="text-xs font-medium text-neutral-200">Deliverability &amp; Compliance Assessment</span></div><div class="flex items-center gap-2"><span class="font-mono text-xs text-neutral-300">Spam Risk: <span class="text-emerald-400">Low (0 flags)</span></span><div class="w-16 bg-neutral-900 border border-white/[0.08] h-1.5 rounded-full overflow-hidden"><div class="bg-emerald-400 h-full w-[9%]"></div></div></div></div><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[11px] pt-1"><div class="p-2 rounded bg-black border border-white/[0.05] flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]"></span><span class="text-neutral-300">Quality Score: 9.2/10</span></div><div class="p-2 rounded bg-black border border-white/[0.05] flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]"></span><span class="text-neutral-300">Spam Risk: Low (0 flags)</span></div><div class="p-2 rounded bg-black border border-white/[0.05] flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]"></span><span class="text-neutral-300">Word Ceiling: 108/150 (Passed)</span></div><div class="p-2 rounded bg-black border border-white/[0.05] flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]"></span><span class="text-neutral-300 truncate">Hallucination Guard: Verified</span></div></div></div>
+<!-- Action Control Bar -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1 border-t border-white/[0.06]">
+<!-- Tooling / Regenerate -->
+<div class="flex items-center gap-2 w-full sm:w-auto">
+<div class="relative w-full sm:w-auto">
+<button class="w-full sm:w-auto flex items-center justify-between gap-1.5 px-3 py-2 rounded-lg border border-white/[0.08] bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white text-xs font-mono transition-colors" id="regen-dropdown-btn" type="button"><span class="material-symbols-outlined text-[15px]">auto_fix_high</span><span class="">Regenerate (Groq 70B)</span><span class="material-symbols-outlined text-[15px]">expand_more</span></button>
+<!-- Prompt Dropdown Menu -->
+<div class="hidden absolute left-0 bottom-full mb-1.5 w-60 rounded-lg border border-white/[0.12] bg-[#0E0E0E] p-1 shadow-2xl z-20 text-xs font-mono text-neutral-300 flex flex-col gap-0.5" id="regen-menu">
+<button class="regen-preset-btn text-left px-2.5 py-1.5 rounded hover:bg-white/[0.06] hover:text-white transition-colors" data-mode="concise">Make More Concise (&lt; 80 words)</button>
+<button class="regen-preset-btn text-left px-2.5 py-1.5 rounded hover:bg-white/[0.06] hover:text-white transition-colors" data-mode="technical">Increase Technical Depth (Snowflake)</button>
+<button class="regen-preset-btn text-left px-2.5 py-1.5 rounded hover:bg-white/[0.06] hover:text-white transition-colors" data-mode="social">Reference Recent Elena LinkedIn Post</button>
+</div>
+</div>
+<button class="px-3 py-2 rounded-lg border border-white/[0.08] bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-rose-400 text-xs font-mono transition-colors whitespace-nowrap" id="skip-lead-btn" type="button">
+                Skip Lead
+              </button>
+</div>
+<!-- Send & Approval Action Buttons -->
+<div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+<button class="px-3.5 py-2.5 rounded-lg border border-white/[0.08] bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white text-xs font-mono transition-colors whitespace-nowrap" id="save-draft-btn" type="button">
+                Save Dry Run
+              </button>
+<!-- Primary CTA: Solid high-contrast white button -->
+<button class="w-full sm:w-auto bg-white text-black hover:bg-neutral-200 font-medium px-5 py-2.5 rounded-lg shadow-sm transition-colors text-xs flex items-center justify-center gap-2 active:scale-[0.98]" id="approve-send-btn" type="button">
+<span class="material-symbols-outlined text-[16px]">send</span>
+<span class="">Approve &amp; Dispatch</span>
+<kbd class="hidden md:inline-block px-1.5 py-0.5 rounded bg-black/10 text-black font-mono text-[10px]">⌘+Enter</kbd>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- 4. Expandable Audit Log & Live Dispatch Telemetry (Bottom Drawer) -->
+<div class="flex flex-col rounded-xl border border-white/[0.08] bg-[#0A0A0A] bg-gradient-to-b from-white/[0.03] to-transparent overflow-hidden">
+<!-- Table Header -->
+<div class="flex items-center justify-between p-4 cursor-pointer hover:bg-white/[0.02] transition-colors border-b border-white/[0.06]" id="toggle-audit-btn">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-neutral-400 text-[18px]" id="audit-chevron-icon">expand_more</span>
+<div class="flex items-center gap-2.5">
+<span class="text-sm font-semibold text-white">Audit &amp; Dispatch Telemetry</span>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-white/[0.08] bg-white/[0.02] text-[11px] font-mono text-neutral-300">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]"></span>
+                Live Pipeline Stream
+              </span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-mono text-xs text-neutral-500 hidden sm:inline-block">Last dispatch 14:23:09 UTC</span>
+<button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/[0.08] bg-[#0E0E0E] hover:bg-neutral-800 text-neutral-300 text-xs font-mono transition-colors" id="download-csv-btn">
+<span class="material-symbols-outlined text-[14px]">download</span>
+<span class="">CSV</span>
+</button>
+</div>
+</div>
+<!-- Telemetry Table Content -->
+<div class="w-full overflow-x-auto" id="audit-table-content">
+<table class="w-full text-left font-mono text-xs">
+<thead class="bg-[#0E0E0E] text-neutral-500 uppercase tracking-wider text-[10px] border-b border-white/[0.06]"><tr class=""><th class="py-2.5 px-4 font-medium">TIMESTAMP (UTC)</th><th class="py-2.5 px-4 font-medium">RECIPIENT</th><th class="py-2.5 px-4 font-medium">COMPANY</th><th class="py-2.5 px-4 font-medium">ROLE</th><th class="py-2.5 px-4 font-medium">SUBJECT</th><th class="py-2.5 px-4 font-medium">STATUS</th><th class="py-2.5 px-4 font-medium">WORDS</th><th class="py-2.5 px-4 font-medium">ERROR DETAILS</th></tr></thead>
+<tbody class="divide-y divide-white/[0.04] text-neutral-300" id="telemetry-table-body"><tr class="hover:bg-white/[0.02] transition-colors"><td class="py-2.5 px-4 text-neutral-500">14:23:09</td><td class="py-2.5 px-4 font-medium text-white">devon.k@hyperplane.sh</td><td class="py-2.5 px-4 text-neutral-400">Hyperplane</td><td class="py-2.5 px-4 text-neutral-400">VP Engineering</td><td class="py-2.5 px-4 text-neutral-400 truncate max-w-xs">Cutting ingest latency on Kubernetes cluster</td><td class="py-2.5 px-4"><span class="px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/[0.06] text-emerald-400 text-[11px] flex items-center gap-1.5 w-max"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]"></span>SENT (200)</span></td><td class="py-2.5 px-4 text-neutral-500">112</td><td class="py-2.5 px-4 text-neutral-500">None</td></tr><tr class="hover:bg-white/[0.02] transition-colors"><td class="py-2.5 px-4 text-neutral-500">14:19:44</td><td class="py-2.5 px-4 font-medium text-white">rachel.m@vortexdata.ai</td><td class="py-2.5 px-4 text-neutral-400">Vortex Data</td><td class="py-2.5 px-4 text-neutral-400">Head of Infra</td><td class="py-2.5 px-4 text-neutral-400 truncate max-w-xs">Scaling batch jobs without Snowflake warehouse spikes</td><td class="py-2.5 px-4"><span class="px-2 py-0.5 rounded-full border border-white/[0.08] bg-white/[0.02] text-neutral-300 text-[11px] flex items-center gap-1.5 w-max"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]"></span>DRY_RUN</span></td><td class="py-2.5 px-4 text-neutral-500">94</td><td class="py-2.5 px-4 text-neutral-400">None (Simulated)</td></tr><tr class="hover:bg-white/[0.02] transition-colors"><td class="py-2.5 px-4 text-neutral-500">14:12:01</td><td class="py-2.5 px-4 font-medium text-white">khalid@shieldsecurity.io</td><td class="py-2.5 px-4 text-neutral-400">Shield Security</td><td class="py-2.5 px-4 text-neutral-400">CTO</td><td class="py-2.5 px-4 text-neutral-400 truncate max-w-xs">Compliance-first telemetry for enterprise agents</td><td class="py-2.5 px-4"><span class="px-2 py-0.5 rounded-full border border-white/[0.08] bg-white/[0.02] text-neutral-500 text-[11px] flex items-center gap-1 w-max"><span class="material-symbols-outlined text-[12px]">block</span>SKIPPED</span></td><td class="py-2.5 px-4 text-neutral-500">130</td><td class="py-2.5 px-4 text-rose-400">Policy: Do-Not-Contact domain match</td></tr></tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<!-- Interactive JavaScript Logic -->
+<script>
+    (function initOutreachCommandCenter() {
+      // Toast notification helper
+      function showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = `p-3 rounded-lg border border-white/[0.12] bg-[#0E0E0E] shadow-2xl font-mono text-xs flex items-center gap-2.5 pointer-events-auto transform transition-all duration-300 translate-y-2 opacity-0 text-white`;
+        
+        let dotColor = 'bg-neutral-400';
+        if (type === 'success') dotColor = 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]';
+        if (type === 'warning') dotColor = 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]';
+        if (type === 'error') dotColor = 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]';
+
+        toast.innerHTML = `<span class="w-2 h-2 rounded-full ${dotColor} shrink-0"></span><span>${message}</span>`;
+        
+        container.appendChild(toast);
+        requestAnimationFrame(() => {
+          toast.classList.remove('translate-y-2', 'opacity-0');
+        });
+
+        setTimeout(() => {
+          toast.classList.add('opacity-0', 'translate-y-2');
+          setTimeout(() => toast.remove(), 300);
+        }, 3200);
+      }
+
+      // 1. Dry Run Switch Handler
+      const dryRunBtn = document.getElementById('toggle-dry-run-btn');
+      const dryRunThumb = document.getElementById('dry-run-thumb');
+      const dryRunStatus = document.getElementById('dry-run-status-text');
+      const navDryRunLabel = document.getElementById('nav-dry-run-label');
+      const navDryRunDot = document.getElementById('nav-dry-run-dot');
+      let isDryRun = true;
+
+      if (dryRunBtn) {
+        dryRunBtn.addEventListener('click', () => {
+          isDryRun = !isDryRun;
+          if (isDryRun) {
+            dryRunThumb.classList.add('translate-x-4');
+            dryRunThumb.classList.remove('translate-x-0');
+            dryRunBtn.setAttribute('aria-checked', 'true');
+            dryRunStatus.textContent = 'DRY_RUN ACTIVE';
+            if (navDryRunLabel) navDryRunLabel.textContent = 'DRY_RUN';
+            if (navDryRunDot) {
+              navDryRunDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]';
+            }
+            showToast('Dry-Run Mode Enabled: Messages will simulate dispatch without sending real emails via Resend.', 'info');
+          } else {
+            dryRunThumb.classList.remove('translate-x-4');
+            dryRunThumb.classList.add('translate-x-0');
+            dryRunBtn.setAttribute('aria-checked', 'false');
+            dryRunStatus.textContent = 'PRODUCTION DISPATCH';
+            if (navDryRunLabel) navDryRunLabel.textContent = 'PRODUCTION';
+            if (navDryRunDot) {
+              navDryRunDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]';
+            }
+            showToast('PRODUCTION MODE ACTIVATED! Resend API will dispatch real emails to verified mailboxes.', 'warning');
+          }
+        });
+      }
+
+      // 2. Candidate Selection & Card Switching
+      const candidateCards = document.querySelectorAll('.candidate-card');
+      const activeLeadName = document.getElementById('active-lead-name');
+      const subjectInput = document.getElementById('email-subject-input');
+      const bodyEditor = document.getElementById('email-body-editor');
+
+      const leadDataMap = {
+        'card-1': {
+          name: 'Elena Rostova',
+          subject: "Quick question regarding Synthetix's dbt pipeline latency",
+          body: `Hi Elena,\n\nNoticed Synthetix's recent expansion into real-time feature stores following your Series B announcement last month.\n\nMost VP Data Eng teams migrating from batch dbt to streaming pipelines face a 3x increase in warehouse egress costs and compute lag.\n\nWe built an autonomous caching gateway that sits between Kafka and Snowflake, reducing sync latency from 14 minutes down to sub-800ms while cutting query compute by 42%.\n\nWould you be open to a 7-minute benchmark demo this Thursday around 2pm PT?\n\nBest,\nAlex`
+        },
+        'card-2': {
+          name: 'Marcus Vance',
+          subject: "Eliminating Kubernetes egress spikes on CloudScale's multi-region clusters",
+          body: `Hi Marcus,\n\nSaw CloudScale's recent benchmark writeup on distributed Kubernetes clusters and SOC2 compliance milestones.\n\nRunning high-throughput ingress nodes across multi-cloud regions usually leads to erratic egress charges and telemetry dropouts.\n\nOur daemonset agent drops cluster network latency by 35% without requiring node restarts or kernel modifications.\n\nDo you have 5 minutes for a quick tech briefing tomorrow morning?\n\nRegards,\nAlex`
+        },
+        'card-3': {
+          name: 'Sarah Chen-Wu',
+          subject: "HIPAA-compliant LLM pipeline latency optimizations for NexaHealth",
+          body: `Hi Sarah,\n\nWith NexaHealth scaling clinical patient workflows, safeguarding PHI while deploying generative medical summarization is tricky.\n\nOur air-gapped LLM gateway processes zero-retention embeddings locally before hitting hosted models, ensuring strict HIPAA audit trails.\n\nWould you be interested in seeing our peer-reviewed healthcare latency benchmarks?\n\nBest,\nAlex`
+        }
+      };
+
+      candidateCards.forEach(card => {
+        card.addEventListener('click', (e) => {
+          if (e.target.tagName === 'INPUT') return;
+          
+          candidateCards.forEach(c => {
+            c.classList.remove('border-white/20', 'bg-white/[0.03]');
+            c.classList.add('border-white/[0.06]', 'bg-[#0E0E0E]');
+          });
+
+          card.classList.remove('border-white/[0.06]', 'bg-[#0E0E0E]');
+          card.classList.add('border-white/20', 'bg-white/[0.03]');
+
+          const cardId = card.getAttribute('data-id');
+          if (leadDataMap[cardId]) {
+            activeLeadName.textContent = leadDataMap[cardId].name;
+            subjectInput.value = leadDataMap[cardId].subject;
+            bodyEditor.value = leadDataMap[cardId].body;
+            updateEditorMetrics();
+            showToast(`Loaded payload context for ${leadDataMap[cardId].name}`, 'info');
+          }
+        });
+      });
+
+      // 3. Dynamic Word Count & Reading Time Updater
+      const wordCountBadge = document.getElementById('word-count-badge');
+      const wordCountBar = document.getElementById('word-count-bar');
+      const readingTimeDisplay = document.getElementById('reading-time-display');
+
+      function updateEditorMetrics() {
+        if (!bodyEditor || !wordCountBadge) return;
+        const text = bodyEditor.value.trim();
+        const words = text ? text.split(/\s+/).length : 0;
+        const ceiling = 150;
+        const percent = Math.min(Math.round((words / ceiling) * 100), 100);
+
+        wordCountBadge.textContent = `${words} / ${ceiling} words`;
+        wordCountBar.style.width = `${percent}%`;
+
+        if (words > 140) {
+          wordCountBadge.className = 'font-mono text-xs text-rose-400';
+          wordCountBar.className = 'bg-rose-500 h-full transition-all';
+        } else {
+          wordCountBadge.className = 'font-mono text-xs text-neutral-300';
+          wordCountBar.className = 'bg-white h-full transition-all';
+        }
+
+        const readSec = Math.max(Math.round((words / 220) * 60), 5);
+        if (readingTimeDisplay) {
+          readingTimeDisplay.innerHTML = `<span class="material-symbols-outlined text-[13px]">schedule</span> ${readSec}s read`;
+        }
+      }
+
+      if (bodyEditor) {
+        bodyEditor.addEventListener('input', updateEditorMetrics);
+      }
+
+      // 4. Subject Line A/B Switcher
+      const btnVariantA = document.getElementById('subject-variant-a');
+      const btnVariantB = document.getElementById('subject-variant-b');
+
+      if (btnVariantA && btnVariantB && subjectInput) {
+        btnVariantA.addEventListener('click', () => {
+          btnVariantA.className = 'subject-variant-btn px-2 py-0.5 rounded bg-white text-black font-medium transition-all text-xs';
+          btnVariantB.className = 'subject-variant-btn px-2 py-0.5 rounded text-neutral-400 hover:text-white transition-all text-xs';
+          subjectInput.value = "Quick question regarding Synthetix's dbt pipeline latency";
+          showToast('Switched to Subject Variant A (38% open rate est.)', 'info');
+        });
+
+        btnVariantB.addEventListener('click', () => {
+          btnVariantB.className = 'subject-variant-btn px-2 py-0.5 rounded bg-white text-black font-medium transition-all text-xs';
+          btnVariantA.className = 'subject-variant-btn px-2 py-0.5 rounded text-neutral-400 hover:text-white transition-all text-xs';
+          subjectInput.value = "Snowflake egress costs + Synthetix Series B feature stores";
+          showToast('Switched to Subject Variant B (44% open rate est.)', 'info');
+        });
+      }
+
+      // 5. Regenerate Preset Dropdown Menu
+      const regenBtn = document.getElementById('regen-dropdown-btn');
+      const regenMenu = document.getElementById('regen-menu');
+
+      if (regenBtn && regenMenu) {
+        regenBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          regenMenu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', () => {
+          if (!regenMenu.classList.contains('hidden')) {
+            regenMenu.classList.add('hidden');
+          }
+        });
+
+        document.querySelectorAll('.regen-preset-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const mode = e.currentTarget.getAttribute('data-mode');
+            regenMenu.classList.add('hidden');
+            showToast(`Prompting Claude 3.7 with preset: "${mode}"...`, 'info');
+
+            setTimeout(() => {
+              if (mode === 'concise') {
+                bodyEditor.value = `Hi Elena,\n\nSaw your Series B expansion. Migrating from batch dbt to real-time pipelines typically triples Snowflake compute bills.\n\nOur autonomous gateway drops sync latency to <800ms and cuts query compute by 42%.\n\nOpen to a 7-minute benchmark this Thursday at 2pm PT?\n\nBest,\nAlex`;
+              } else if (mode === 'technical') {
+                bodyEditor.value = `Hi Elena,\n\nExamining Synthetix's multi-tenant dbt models and streaming micro-batches, standard micro-partition merges often incur massive Snowflake remote storage IOPS penalties.\n\nWe deployed an eBPF cache proxy between your Kafka cluster and warehouse that pushes micro-aggregations in memory, reducing partition rewrite thrashing by 68%.\n\nCan I send over the technical architecture whitepaper and latency flamegraph?\n\nBest,\nAlex`;
+              } else {
+                bodyEditor.value = `Hi Elena,\n\nLoved your recent post detailing Synthetix's journey decoupling dbt dependencies from downstream consumers.\n\nSince streaming feature stores amplify warehouse synchronization delays, we architected a zero-compute caching layer for teams in that exact transition.\n\nWould you be open to reviewing the reference benchmarks this week?\n\nBest,\nAlex`;
+              }
+              updateEditorMetrics();
+              showToast('Email payload successfully synthesized by Claude 3.7', 'success');
+            }, 600);
+          });
+        });
+      }
+
+      // 6. Action Execution: Approve & Dispatch
+      const approveBtn = document.getElementById('approve-send-btn');
+      const telemetryTableBody = document.getElementById('telemetry-table-body');
+      const kpiQueue = document.getElementById('kpi-queue-count');
+
+      function triggerDispatch() {
+        const name = activeLeadName ? activeLeadName.textContent : 'Candidate';
+        const subj = subjectInput ? subjectInput.value : 'Outreach Message';
+        const now = new Date();
+        const timeStr = now.toTimeString().split(' ')[0];
+
+        showToast(
+          isDryRun ? `[DRY RUN] Simulated dispatch queued for ${name}` : `[LIVE] Resend API 200 OK — Dispatched to ${name}`,
+          'success'
+        );
+
+        if (telemetryTableBody) {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-white/[0.02] transition-colors bg-white/[0.02]';
+          tr.innerHTML = `
+            <td class="py-2.5 px-4 text-neutral-500">${timeStr}</td>
+            <td class="py-2.5 px-4 font-medium text-white">${name.toLowerCase().replace(' ', '.')}@domain.io</td>
+            <td class="py-2.5 px-4 text-neutral-400">Synthetix AI</td>
+            <td class="py-2.5 px-4 text-neutral-400 truncate max-w-xs">${subj}</td>
+            <td class="py-2.5 px-4">
+              <span class="px-2 py-0.5 rounded-full border ${isDryRun ? 'border-white/[0.08] bg-white/[0.02] text-neutral-300' : 'border-emerald-500/30 bg-emerald-500/[0.06] text-emerald-400'} text-[11px] flex items-center gap-1.5 w-max">
+                <span class="w-1.5 h-1.5 rounded-full ${isDryRun ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]' : 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]'}"></span>
+                ${isDryRun ? 'DRY_RUN' : 'SENT (200)'}
+              </span>
+            </td>
+            <td class="py-2.5 px-4 text-neutral-500">108</td>
+            <td class="py-2.5 px-4 ${isDryRun ? 'text-neutral-400' : 'text-emerald-400'}">${Math.floor(Math.random() * 80 + 70)}ms</td>
+            <td class="py-2.5 px-4 text-right">
+              <button class="view-payload-btn px-2 py-1 rounded border border-white/[0.08] bg-[#0E0E0E] hover:bg-neutral-800 text-neutral-300 transition-colors text-[11px]">View</button>
+            </td>
+          `;
+          telemetryTableBody.prepend(tr);
+        }
+
+        if (kpiQueue) {
+          const current = parseInt(kpiQueue.textContent, 10);
+          if (current > 0) kpiQueue.textContent = current - 1;
+        }
+      }
+
+      if (approveBtn) {
+        approveBtn.addEventListener('click', triggerDispatch);
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+          e.preventDefault();
+          triggerDispatch();
+        }
+      });
+
+      // 7. Save Draft & Skip Actions
+      const saveDraftBtn = document.getElementById('save-draft-btn');
+      const skipLeadBtn = document.getElementById('skip-lead-btn');
+
+      if (saveDraftBtn) {
+        saveDraftBtn.addEventListener('click', () => {
+          showToast('Draft preserved in local cache', 'info');
+        });
+      }
+
+      if (skipLeadBtn) {
+        skipLeadBtn.addEventListener('click', () => {
+          showToast('Lead skipped and added to exclusions', 'warning');
+        });
+      }
+
+      // 8. Collapsible Telemetry Drawer
+      const toggleAuditBtn = document.getElementById('toggle-audit-btn');
+      const auditTableContent = document.getElementById('audit-table-content');
+      const auditChevronIcon = document.getElementById('audit-chevron-icon');
+
+      if (toggleAuditBtn && auditTableContent && auditChevronIcon) {
+        toggleAuditBtn.addEventListener('click', (e) => {
+          if (e.target.closest('#download-csv-btn')) return;
+          const isHidden = auditTableContent.classList.contains('hidden');
+          if (isHidden) {
+            auditTableContent.classList.remove('hidden');
+            auditChevronIcon.textContent = 'expand_more';
+          } else {
+            auditTableContent.classList.add('hidden');
+            auditChevronIcon.textContent = 'chevron_right';
+          }
+        });
+      }
+
+      // 9. Batch Selection Logic
+      const selectAllCheckbox = document.getElementById('select-all-checkbox');
+      const candidateCheckboxes = document.querySelectorAll('.candidate-checkbox');
+
+      if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', (e) => {
+          candidateCheckboxes.forEach(cb => cb.checked = e.target.checked);
+          showToast(`${e.target.checked ? 'Selected' : 'Deselected'} all visible queue candidates`, 'info');
+        });
+      }
+
+      // 10. Filter Tabs Logic
+      const filterBtns = document.querySelectorAll('.queue-filter-btn');
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterBtns.forEach(b => {
+            b.className = 'queue-filter-btn px-2.5 py-1 rounded-md border border-white/[0.08] bg-white/[0.02] text-neutral-400 hover:text-white hover:bg-neutral-900 transition-all';
+          });
+          btn.className = 'queue-filter-btn px-2.5 py-1 rounded-md bg-white text-black font-medium transition-all';
+          showToast(`Filtered queue stream by: ${btn.textContent}`, 'info');
+        });
+      });
+
+      // 11. Search Input Filter simulation
+      const searchInput = document.getElementById('contact-search-input');
+      const clearSearchBtn = document.getElementById('clear-search-btn');
+
+      if (searchInput && clearSearchBtn) {
+        searchInput.addEventListener('input', () => {
+          if (searchInput.value.trim().length > 0) {
+            clearSearchBtn.classList.remove('hidden');
+          } else {
+            clearSearchBtn.classList.add('hidden');
+          }
+        });
+
+        clearSearchBtn.addEventListener('click', () => {
+          searchInput.value = '';
+          clearSearchBtn.classList.add('hidden');
+          showToast('Search filters cleared', 'info');
+        });
+      }
+
+      // 12. View Payload delegate handler
+      document.addEventListener('click', (e) => {
+        if (e.target && e.target.classList.contains('view-payload-btn')) {
+          showToast('Opening raw JSON telemetry inspector...', 'info');
+        }
+      });
+    })();
+  </script>
+
+
+</body></html>

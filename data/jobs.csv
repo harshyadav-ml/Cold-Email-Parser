@@ -1,0 +1,3 @@
+recipient_name,recipient_email,company,role,job_url,personalization_note,candidate_name,candidate_background,portfolio_url
+Maya Patel,maya@cloudscale.io,CloudScale,Cloud Infrastructure Engineer,https://cloudscale.io/careers/cloud-infra,CloudScale expanded their multi-cloud platform,Alex Chen,distributed systems and cloud automation,https://github.com/alexchen
+Marcus Vance,marcus@nextgenrobotics.ai,NextGen Robotics,Robotics Software Engineer,https://nextgenrobotics.ai/jobs/swe,NextGen just unveiled their open source SDK,Alex Chen,real-time Python tooling and hardware interfaces,https://github.com/alexchen

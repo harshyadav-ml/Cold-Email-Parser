@@ -1,0 +1,33 @@
+[
+  {
+    "recipient_name": "Priya Sharma",
+    "recipient_email": "priya@acmeai.com",
+    "company": "Acme AI",
+    "role": "Backend Engineering Intern",
+    "job_url": "https://acmeai.com/jobs/backend-intern",
+    "personalization_note": "Acme AI recently launched an AI workflow automation product",
+    "candidate_name": "Harsh Yadav",
+    "candidate_background": "AI Engineer specializing in agentic workflows, FastAPI, Next.js, and production LLM pipelines",
+    "portfolio_url": "https://github.com/harshyadav-ml"
+  },
+  {
+    "recipient_name": "Rahul Verma",
+    "recipient_email": "rahul@startupxyz.io",
+    "company": "StartupXYZ",
+    "role": "ML Engineer",
+    "personalization_note": "StartupXYZ is building LLM-powered search tools",
+    "candidate_name": "Harsh Yadav",
+    "candidate_background": "AI Engineer specializing in agentic workflows, FastAPI, Next.js, and production LLM pipelines",
+    "portfolio_url": "https://github.com/harshyadav-ml"
+  },
+  {
+    "recipient_name": "Sara Kim",
+    "recipient_email": "sara@devtools.co",
+    "company": "DevTools Co",
+    "role": "Developer Advocate",
+    "personalization_note": "DevTools Co just open-sourced their CLI platform",
+    "candidate_name": "Harsh Yadav",
+    "candidate_background": "AI Engineer specializing in agentic workflows, FastAPI, Next.js, and production LLM pipelines",
+    "portfolio_url": "https://github.com/harshyadav-ml"
+  }
+]

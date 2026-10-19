@@ -1,0 +1,5 @@
+# Opt-out list for The Closer
+# Add one email address per line to prevent repeated contact.
+# Lines starting with # are comments.
+# Example:
+# unsubscribed@example.com

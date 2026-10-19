@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+outreach_log.csv
+*.egg-info/
+.DS_Store
+logs/outreach_log.csv
