@@ -75,13 +75,29 @@ app = FastAPI(
 )
 
 
-# Enable CORS for Next.js frontend
+# Enable CORS for Next.js frontend (env-driven with Vercel and localhost support)
+_allowed_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+_allowed_origins = [o.strip() for o in _allowed_origins if o.strip()]
+
+if not _allowed_origins:
+    _allowed_origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
+
+_vercel_url = os.getenv("VERCEL_URL")
+_vercel_project_url = os.getenv("VERCEL_PROJECT_PRODUCTION_URL")
+if _vercel_url:
+    _allowed_origins.append(f"https://{_vercel_url}")
+if _vercel_project_url:
+    _allowed_origins.append(f"https://{_vercel_project_url}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "*"],
+    allow_origins=_allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
 )
 
 

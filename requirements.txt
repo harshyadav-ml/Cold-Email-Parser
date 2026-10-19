@@ -2,5 +2,7 @@ python-dotenv
 groq
 google-api-python-client
 google-auth-oauthlib
-streamlit
 python-multipart
+fastapi
+uvicorn[standard]
+pydantic
