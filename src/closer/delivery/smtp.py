@@ -15,25 +15,46 @@ from src.closer.config import settings
 # ── Internal helpers ──────────────────────────────────────────────────
 
 def _get_smtp_connection() -> smtplib.SMTP:
-    """Establish an authenticated SMTP session with Gmail."""
-    if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
+    """Establish an authenticated SMTP session with Gmail or custom provider."""
+    smtp_user = (settings.SMTP_USER or "").strip()
+    smtp_password = (settings.SMTP_PASSWORD or "").strip()
+    smtp_host = (settings.SMTP_HOST or "smtp.gmail.com").strip()
+    smtp_port = int(settings.SMTP_PORT)
+
+    if not smtp_user or not smtp_password:
         raise EnvironmentError(
             "SMTP_USER and SMTP_PASSWORD must be set in .env"
         )
-    server = smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT)
-    server.ehlo()
-    server.starttls()
-    server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-    return server
+
+    try:
+        if smtp_port == 465:
+            server = smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=15)
+            server.ehlo()
+        else:
+            server = smtplib.SMTP(smtp_host, smtp_port, timeout=15)
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+        server.login(smtp_user, smtp_password)
+        return server
+    except OSError as exc:
+        if getattr(exc, "errno", None) == 101 or "101" in str(exc) or "Network is unreachable" in str(exc):
+            raise OSError(
+                101,
+                "[Errno 101] Network is unreachable (Render Free Tier blocks SMTP port 587. Switch SEND_METHOD to gmail_api or use SMTP port 2525)",
+            ) from exc
+        raise
 
 
 def _build_message(to: str, subject: str, body: str) -> MIMEMultipart:
     """Construct a MIME message ready for SMTP transmission."""
     msg = MIMEMultipart()
-    if settings.SENDER_NAME:
-        msg["From"] = f"{settings.SENDER_NAME} <{settings.SMTP_USER}>"
+    sender_name = (settings.SENDER_NAME or "").strip()
+    smtp_user = (settings.SMTP_USER or "").strip()
+    if sender_name:
+        msg["From"] = f"{sender_name} <{smtp_user}>"
     else:
-        msg["From"] = settings.SMTP_USER
+        msg["From"] = smtp_user
     msg["To"] = to
     msg["Subject"] = subject
     msg.attach(MIMEText(body, "plain"))
@@ -54,20 +75,34 @@ def send_email(to: str, subject: str, body: str) -> dict:
 
     try:
         msg = _build_message(to, subject, body)
+        smtp_user = (settings.SMTP_USER or "").strip()
         with _get_smtp_connection() as server:
-            server.sendmail(settings.SMTP_USER, to, msg.as_string())
+            server.sendmail(smtp_user, to, msg.as_string())
         print(f"  Sent to {to}")
         return {
             "status": "sent",
             "message_id": msg["Message-ID"],
             "error_message": "",
         }
-    except Exception as exc:
-        print(f"  Send failed: {exc}")
+    except OSError as exc:
+        err_msg = str(exc)
+        if getattr(exc, "errno", None) == 101 or "101" in str(exc) or "Network is unreachable" in str(exc):
+            err_msg = "[Errno 101] Network is unreachable (Render Free Tier blocks SMTP port 587. Switch SEND_METHOD to gmail_api or use SMTP port 2525)"
+        print(f"  Send failed: {err_msg}")
         return {
             "status": "failed",
             "message_id": None,
-            "error_message": str(exc),
+            "error_message": err_msg,
+        }
+    except Exception as exc:
+        err_msg = str(exc)
+        if "101" in err_msg or "Network is unreachable" in err_msg:
+            err_msg = "[Errno 101] Network is unreachable (Render Free Tier blocks SMTP port 587. Switch SEND_METHOD to gmail_api or use SMTP port 2525)"
+        print(f"  Send failed: {err_msg}")
+        return {
+            "status": "failed",
+            "message_id": None,
+            "error_message": err_msg,
         }
 
 

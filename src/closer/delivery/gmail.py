@@ -7,6 +7,8 @@ and catches HttpError 429 quota exhaustion with fallback to SMTP (Criterion 5G.4
 from __future__ import annotations
 
 import base64
+import json
+import os
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
@@ -44,17 +46,8 @@ def _build_raw_message(to: str, subject: str, body: str) -> str:
 def get_gmail_service(token_path: Optional[Path | str] = None) -> Any:
     """Load or refresh credentials and return authenticated Gmail service.
 
-    Handles token refresh automatically and catches RefreshError (EC-4.6).
+    Handles token refresh automatically, checks cloud/env tokens, and catches RefreshError (EC-4.6).
     """
-    path = Path(token_path) if token_path else TOKEN_FILE
-    if not path.exists():
-        # Check current working directory fallback
-        cwd_token = Path("token.json")
-        if cwd_token.exists():
-            path = cwd_token
-        else:
-            return None
-
     try:
         from google.auth.exceptions import RefreshError
         from google.auth.transport.requests import Request
@@ -64,31 +57,124 @@ def get_gmail_service(token_path: Optional[Path | str] = None) -> Any:
         print("  [WARNING] google-api-python-client not installed.")
         return None
 
-    try:
-        creds = Credentials.from_authorized_user_file(str(path), SCOPES)
-    except Exception as exc:
-        print(f"  [WARNING] Error reading {path.name}: {exc}")
-        return None
+    creds: Optional[Any] = None
+    save_path: Path = TOKEN_FILE
+
+    if token_path:
+        path = Path(token_path)
+        if path.exists():
+            save_path = path
+            try:
+                creds = Credentials.from_authorized_user_file(str(path), SCOPES)
+            except Exception as exc:
+                print(f"  [WARNING] Error reading {path.name}: {exc}")
+                return None
+        else:
+            return None
+    else:
+        # Priority 1: GMAIL_TOKEN_JSON env var
+        token_env = os.getenv("GMAIL_TOKEN_JSON", "").strip()
+        if token_env:
+            try:
+                token_data = json.loads(token_env)
+                creds = Credentials.from_authorized_user_info(token_data, SCOPES)
+                save_path = Path("/tmp/token.json")
+            except Exception as exc:
+                print(f"  [WARNING] Error parsing GMAIL_TOKEN_JSON env var: {exc}")
+                creds = None
+
+        # Priority 2: Render Secret File
+        if not creds:
+            render_secret = Path("/etc/secrets/token.json")
+            if render_secret.exists():
+                try:
+                    creds = Credentials.from_authorized_user_file(str(render_secret), SCOPES)
+                    save_path = Path("/tmp/token.json")
+                except Exception as exc:
+                    print(f"  [WARNING] Error reading {render_secret}: {exc}")
+                    creds = None
+
+        # Priority 3: /tmp/token.json
+        if not creds:
+            tmp_token = Path("/tmp/token.json")
+            if tmp_token.exists():
+                try:
+                    creds = Credentials.from_authorized_user_file(str(tmp_token), SCOPES)
+                    save_path = tmp_token
+                except Exception as exc:
+                    print(f"  [WARNING] Error reading {tmp_token}: {exc}")
+                    creds = None
+
+        # Priority 4: Default local file (TOKEN_FILE or cwd token.json)
+        if not creds:
+            default_path = TOKEN_FILE if TOKEN_FILE.exists() else Path("token.json")
+            if default_path.exists():
+                save_path = default_path
+                try:
+                    creds = Credentials.from_authorized_user_file(str(default_path), SCOPES)
+                except Exception as exc:
+                    print(f"  [WARNING] Error reading {default_path.name}: {exc}")
+                    creds = None
+            else:
+                save_path = TOKEN_FILE
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             try:
                 creds.refresh(Request())
-                with open(path, "w", encoding="utf-8") as token_fh:
-                    token_fh.write(creds.to_json())
+                try:
+                    with open(save_path, "w", encoding="utf-8") as token_fh:
+                        token_fh.write(creds.to_json())
+                except OSError:
+                    with open(Path("/tmp/token.json"), "w", encoding="utf-8") as token_fh:
+                        token_fh.write(creds.to_json())
             except RefreshError as exc:
                 # EC-4.6: Token expired and refresh failed
                 print(
                     f"  [WARNING] Gmail OAuth token expired and refresh failed: {exc} (EC-4.6). "
                     f"Please re-run OAuth authentication flow to generate a fresh token.json."
                 )
+                if os.getenv("RENDER") or os.getenv("VERCEL") or os.getenv("CI"):
+                    raise EnvironmentError(
+                        "Gmail OAuth token missing or invalid in cloud environment. "
+                        "Set GMAIL_TOKEN_JSON in Render Environment Variables or mount /etc/secrets/token.json."
+                    )
                 return None
             except Exception as exc:
                 print(f"  [WARNING] Could not refresh Gmail OAuth token: {exc}")
+                if os.getenv("RENDER") or os.getenv("VERCEL") or os.getenv("CI"):
+                    raise EnvironmentError(
+                        "Gmail OAuth token missing or invalid in cloud environment. "
+                        "Set GMAIL_TOKEN_JSON in Render Environment Variables or mount /etc/secrets/token.json."
+                    )
                 return None
         else:
-            print("  [WARNING] Invalid credentials in token.json. Please re-authenticate.")
-            return None
+            # Guard interactive browser OAuth flow in headless cloud environment
+            if os.getenv("RENDER") or os.getenv("VERCEL") or os.getenv("CI"):
+                raise EnvironmentError(
+                    "Gmail OAuth token missing or invalid in cloud environment. "
+                    "Set GMAIL_TOKEN_JSON in Render Environment Variables or mount /etc/secrets/token.json."
+                )
+
+            # Local fallback: try interactive OAuth if client secrets exist
+            cred_file = CREDENTIALS_FILE if CREDENTIALS_FILE.exists() else Path("credentials.json")
+            if cred_file.exists():
+                try:
+                    from google_auth_oauthlib.flow import InstalledAppFlow
+                    flow = InstalledAppFlow.from_client_secrets_file(str(cred_file), SCOPES)
+                    creds = flow.run_local_server(port=0)
+                    try:
+                        with open(save_path, "w", encoding="utf-8") as token_fh:
+                            token_fh.write(creds.to_json())
+                    except OSError:
+                        with open(Path("/tmp/token.json"), "w", encoding="utf-8") as token_fh:
+                            token_fh.write(creds.to_json())
+                except Exception as exc:
+                    print(f"  [WARNING] Interactive OAuth flow failed: {exc}")
+                    return None
+            else:
+                print("  [WARNING] Invalid credentials in token.json. Please re-authenticate.")
+                return None
 
     try:
         return build("gmail", "v1", credentials=creds, cache_discovery=False)
