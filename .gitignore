@@ -6,3 +6,7 @@ outreach_log.csv
 *.egg-info/
 .DS_Store
 logs/outreach_log.csv
+
+# Google OAuth credentials — never commit these
+token.json
+credentials.json

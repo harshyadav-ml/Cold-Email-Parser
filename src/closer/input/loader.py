@@ -103,7 +103,7 @@ def validate_contact_record(rec: dict) -> dict | None:
         "personalization_note": canonical.get("personalization_note") or None,
         "candidate_name": canonical.get("candidate_name") or "Harsh Yadav",
         "candidate_background": canonical.get("candidate_background") or "AI Engineer with experience in agentic workflows",
-        "portfolio_url": canonical.get("portfolio_url") or "https://github.com/alexchen",
+        "portfolio_url": canonical.get("portfolio_url") or "https://github.com/harshyadav-ml",
     }
 
     # Retain any extra unmapped keys

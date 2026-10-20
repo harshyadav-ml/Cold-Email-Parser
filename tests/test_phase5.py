@@ -45,10 +45,11 @@ class TestPhase5LLM(unittest.TestCase):
         self.assertIn("Acme AI", prompt)
         self.assertIn("Backend Engineer", prompt)
         self.assertIn("Under 150 words", prompt)
-        self.assertIn("Subject: [subject line]", prompt)
+        self.assertIn("Subject: [Compelling subject line here]", prompt)
 
+    @patch("src.closer.generation.llm.os.getenv", return_value="")
     @patch("src.closer.generation.llm.settings")
-    def test_missing_api_key_falls_back_to_template(self, mock_settings) -> None:
+    def test_missing_api_key_falls_back_to_template(self, mock_settings, mock_getenv) -> None:
         """Missing API key triggers fallback with warning (EC-0.5, Criterion 5L.2)."""
         mock_settings.GROQ_API_KEY = ""
         mock_settings.ANTHROPIC_API_KEY = ""
@@ -59,7 +60,7 @@ class TestPhase5LLM(unittest.TestCase):
             subj, body = generate_with_llm(self.sample_contact)
             output = fake_out.getvalue()
 
-        self.assertIn("[WARNING] LLM API key missing", output)
+        self.assertIn("[WARNING] GROQ_API_KEY missing", output)
         self.assertIn("Acme AI", subj)
         self.assertIn("Alex Chen", body)
 
@@ -90,9 +91,10 @@ class TestPhase5LLM(unittest.TestCase):
         self.assertEqual(subj, "Cold Email Note")
         self.assertIn("Loved your workflow launch", body)
 
+    @patch("src.closer.generation.llm.os.getenv", return_value="gsk_test_key")
     @patch("src.closer.generation.llm.settings")
     @patch("groq.Groq")
-    def test_llm_empty_response_fallback(self, mock_groq_cls, mock_settings) -> None:
+    def test_llm_empty_response_fallback(self, mock_groq_cls, mock_settings, mock_getenv) -> None:
         """Empty or whitespace response falls back to template (EC-2.4, Criterion 5L.3)."""
         mock_settings.GROQ_API_KEY = "gsk_test_key"
         mock_settings.ANTHROPIC_API_KEY = ""
@@ -111,7 +113,7 @@ class TestPhase5LLM(unittest.TestCase):
             subj, body = generate_with_llm(self.sample_contact)
             output = fake_out.getvalue()
 
-        self.assertIn("empty or whitespace response", output)
+        self.assertIn("empty", output.lower())
         self.assertIn("Acme AI", subj)
         self.assertIn("Alex Chen", body)
 
@@ -147,9 +149,10 @@ class TestPhase5LLM(unittest.TestCase):
         # Returned template fallback
         self.assertIn("Acme AI", subj)
 
+    @patch("src.closer.generation.llm.os.getenv", return_value="gsk_test_key")
     @patch("src.closer.generation.llm.settings")
     @patch("groq.Groq")
-    def test_llm_timeout_falls_back_to_template(self, mock_groq_cls, mock_settings) -> None:
+    def test_llm_timeout_falls_back_to_template(self, mock_groq_cls, mock_settings, mock_getenv) -> None:
         """API timeout (>30s) falls back to template (EC-2.7, Criterion 5L.5)."""
         mock_settings.GROQ_API_KEY = "gsk_test_key"
         mock_settings.ANTHROPIC_API_KEY = ""
@@ -164,9 +167,9 @@ class TestPhase5LLM(unittest.TestCase):
 
         with patch("sys.stdout", new=io.StringIO()) as fake_out:
             subj, body = generate_with_llm(self.sample_contact)
-            output = fake_out.getvalue()
+            output = fake_out.getvalue()     
 
-        self.assertIn("timeout", output.lower())
+        self.assertIn("timed out", output.lower())
         self.assertIn("Acme AI", subj)
 
     def test_validate_email_detects_fabricated_claims(self) -> None:

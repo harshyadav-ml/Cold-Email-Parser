@@ -61,12 +61,43 @@ from src.closer.audit.logger import (
 
 active_source_file: str = "data/contacts.json"
 
-sender_profile: Dict[str, str] = {
+# ── Sender Profile helpers ─────────────────────────────────────────────
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+_SENDER_PROFILE_PATH = _PROJECT_ROOT / "data" / "sender_profile.json"
+
+_DEFAULT_SENDER_PROFILE: Dict[str, str] = {
     "candidate_name": "Harsh Yadav",
     "candidate_title": "AI Engineer",
     "candidate_background": "AI Engineer specializing in agentic workflows, FastAPI, Next.js, and production LLM pipelines",
     "portfolio_url": "https://github.com/harshyadav-ml",
 }
+
+
+def _load_sender_profile() -> Dict[str, str]:
+    """Load sender profile from data/sender_profile.json, falling back to defaults."""
+    try:
+        if _SENDER_PROFILE_PATH.exists():
+            with open(_SENDER_PROFILE_PATH, "r", encoding="utf-8") as _f:
+                saved = json.load(_f)
+            profile = dict(_DEFAULT_SENDER_PROFILE)
+            profile.update({k: str(v) for k, v in saved.items() if v})
+            return profile
+    except Exception:
+        pass
+    return dict(_DEFAULT_SENDER_PROFILE)
+
+
+def _save_sender_profile(profile: Dict[str, str]) -> None:
+    """Persist sender profile to data/sender_profile.json."""
+    try:
+        _SENDER_PROFILE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(_SENDER_PROFILE_PATH, "w", encoding="utf-8") as _f:
+            json.dump(profile, _f, indent=2)
+    except Exception as exc:
+        print(f"  [WARNING] Could not persist sender profile: {exc}")
+
+
+sender_profile: Dict[str, str] = _load_sender_profile()
 
 app = FastAPI(
     title="The Closer API",
@@ -146,6 +177,18 @@ class ToggleDryRunRequest(BaseModel):
     dry_run: bool
 
 
+# ── Root Welcome Route ────────────────────────────────────────────────
+
+@app.get("/")
+def read_root():
+    """Root endpoint welcoming users and directing to Swagger /docs."""
+    return {
+        "message": "Welcome to The Closer API — Cold Email Review & Dispatch Engine",
+        "documentation": "/docs",
+        "status": "online",
+    }
+
+
 # ── System Status & Telemetry ─────────────────────────────────────────
 
 @app.get("/api/status")
@@ -204,6 +247,9 @@ def update_sender_profile(payload: ProfilePayload) -> Dict[str, Any]:
 
     if updated_contacts:
         save_contacts(updated_contacts)
+
+    # Persist sender profile so it survives restarts
+    _save_sender_profile(sender_profile)
 
     # Re-synthesize initial drafts and scores for all contacts
     optouts = load_optout_list()

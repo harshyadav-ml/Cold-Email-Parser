@@ -216,5 +216,14 @@ def validate_email(body: str) -> bool:
 
 
 def generate_followup(contact: dict, previous_subject: str = "") -> tuple[str, str]:
-    """Generate a polite follow-up email."""
-    return _build_template_email(contact, mode="followup", cycle_index=0)
+    """Generate a polite follow-up email.
+
+    If previous_subject is provided, the subject becomes 'Re: <previous_subject>'.
+    Otherwise falls back to the standard followup template subject.
+    """
+    _, body = _build_template_email(contact, mode="followup", cycle_index=0)
+    if previous_subject and previous_subject.strip():
+        subject = f"Re: {previous_subject.strip()}"
+    else:
+        subject = _build_template_email(contact, mode="followup", cycle_index=0)[0]
+    return subject, body

@@ -19,8 +19,8 @@ SENDER_NAME: str = os.getenv("SENDER_NAME", "").strip()
 
 # ── Feature flags ─────────────────────────────────────────────────────
 DRY_RUN: bool = os.getenv("DRY_RUN", "true").strip().lower() == "true"
-SEND_METHOD: str = os.getenv("SEND_METHOD", "smtp").strip().lower()
-MAX_SENDS_PER_SESSION: int = int(os.getenv("MAX_SENDS_PER_SESSION", "5").strip())
+SEND_METHOD: str = os.getenv("SEND_METHOD", "gmail_api").strip().lower()
+MAX_SENDS_PER_SESSION: int = int(os.getenv("MAX_SENDS_PER_SESSION", "50").strip())
 GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "").strip()
 ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "").strip()
 OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "").strip()
