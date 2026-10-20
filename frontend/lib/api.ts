@@ -232,19 +232,19 @@ export async function regenerateEmail(
       standard: [
         {
           subject: `Quick note on the ${role} role at ${company}`,
-          body: `Hi ${name},\n\nI noticed ${company} is hiring for ${role}.\n\nI'm Harsh Yadav, and I've been building projects around AI agents and automation. Would you be open to a quick look at my profile?\n\nBest,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
+          body: `Hi ${name},\n\nI saw that ${company} is hiring for the ${role} position.\n\nI'm Harsh Yadav, and I've been building projects around AI agents and automation. Would you be open to a brief 5-minute chat to see if my background might be a fit?\n\nBest,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
         },
         {
           subject: `Harsh Yadav <> ${company}: ${role}`,
-          body: `Hi ${name},\n\nSaw ${company}'s recent progress and the open ${role} position.\n\nAs an engineer, I've focused on delivering reliable software and shipping fast. Could we schedule 5 minutes this week for a brief introductory conversation?\n\nBest regards,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
+          body: `Hi ${name},\n\nI noticed you are expanding your team for the ${role} position.\n\nAs an engineer, I've focused on delivering reliable software and building clean architectures. Could we schedule 5 minutes this week for a brief introductory conversation?\n\nBest regards,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
         },
         {
           subject: `${role} inquiry — ${company}`,
-          body: `Hi ${name},\n\nReaching out regarding the ${role} opening on your team.\n\nMy work revolves around building end-to-end solutions that scale. Would you be open to a 7-minute call or reviewing my portfolio?\n\nBest,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
+          body: `Hi ${name},\n\nI'm reaching out regarding the open ${role} position on your team.\n\nMy work revolves around building end-to-end solutions that scale. Would you be open to a brief 5-minute chat or reviewing my portfolio?\n\nBest,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
         },
         {
           subject: `Exploring ${role} opportunities at ${company}`,
-          body: `Hi ${name},\n\nFollowing ${company}'s exciting momentum around ${role}.\n\nYour team's engineering velocity aligns closely with the tools I love building. Do you have a moment this Thursday for a brief chat?\n\nBest,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
+          body: `Hi ${name},\n\nI've been following what ${company} is building and saw that you're looking for a ${role}.\n\nYour team's engineering velocity aligns closely with the tools I love building. Do you have a moment this week for a brief chat?\n\nBest,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
         },
       ],
     };

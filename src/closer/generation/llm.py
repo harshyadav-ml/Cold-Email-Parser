@@ -51,34 +51,35 @@ def build_prompt(
 
     if mode_lower == "concise":
         mode_instruction = (
-            "MODE: ULTRA-CONCISE.\n"
+            "MODE: ULTRA-CONCISE & CONVERSATIONAL.\n"
             "- Length: Strictly under 75 words.\n"
-            "- 2 punchy paragraphs maximum.\n"
-            "- Hook in the first sentence referencing their product/news.\n"
-            "- 1-sentence crisp call to action."
+            "- 2 punchy, natural paragraphs maximum.\n"
+            "- Natural hook in the first sentence (e.g., 'I noticed you are expanding your team for the [Role] position' or 'I saw that [Company] is hiring for [Role]').\n"
+            "- 1-sentence low-friction call to action (e.g. a brief 5-minute chat)."
         )
     elif mode_lower == "technical":
         mode_instruction = (
-            "MODE: TECHNICAL DEPTH & SYSTEMS ARCHITECTURE.\n"
+            "MODE: TECHNICAL DEPTH & PEER-TO-PEER CONVERSATION.\n"
             "- Length: Around 90-120 words.\n"
-            "- Focus on backend infrastructure, distributed data pipelines, latency reduction, and Python tooling.\n"
-            "- Mention engineering trade-offs or scalability challenges directly relevant to the role."
+            "- Write naturally like one software engineer speaking to another, avoiding sales buzzwords.\n"
+            "- Focus on backend infrastructure, distributed data pipelines, performance, and practical engineering trade-offs.\n"
+            "- Mention technical challenges directly relevant to the role."
         )
     elif mode_lower == "followup":
         ref_subj = previous_subject or f"Quick note on the {role} role at {company}"
         mode_instruction = (
-            f"MODE: POLITE FOLLOW-UP.\n"
+            f"MODE: POLITE & LOW-FRICTION FOLLOW-UP.\n"
             f"- Length: Strictly under 60 words.\n"
             f"- Reference the earlier outreach (Previous subject: '{ref_subj}').\n"
-            f"- Acknowledge they are busy, and ask if there is an engineering lead or hiring manager to connect with."
+            f"- Respectfully acknowledge their time, and ask if there is an engineering lead or hiring manager to connect with."
         )
     else:
         mode_instruction = (
-            "MODE: STANDARD OUTREACH.\n"
+            "MODE: STANDARD OUTREACH (NATURAL & CONVERSATIONAL).\n"
             "- Length: Under 120 words.\n"
-            "- Open with a specific personalization hook connected to their recent company milestones.\n"
-            "- Highlight relevant candidate engineering background and projects.\n"
-            "- End with one polite, low-friction ask."
+            "- Open with a smooth, natural hook (e.g., 'I saw that [Company] is hiring an [Role]' or 'I noticed you are expanding your team for the [Role] position').\n"
+            "- Highlight relevant candidate engineering background and projects naturally without sales hype.\n"
+            "- End with one polite, low-friction ask (like a brief 5-minute chat)."
         )
 
     avoid_block = ""
@@ -113,9 +114,10 @@ Generation attempt #{regen_count}. You must write a completely unique subject li
 
 STRICT WRITING RULES:
 1. Under 150 words total.
-2. Hook in the very first sentence.
-3. No fabricated or exaggerated claims (never invent referrals, prior calls, or mutual acquaintances).
-4. Output MUST follow this exact format with NO markdown wrapping around the Subject line:
+2. Hook in the very first sentence. Use natural phrasing (e.g., 'I saw that [Company] is hiring for...' or 'I noticed you are expanding your team for...').
+3. Sound conversational, human, and genuine: write peer-to-peer and avoid salesy buzzwords ('synergy', 'leverage', 'spearhead', 'thrilled to apply').
+4. No fabricated or exaggerated claims (never invent referrals, prior calls, or mutual acquaintances).
+5. Output MUST follow this exact format with NO markdown wrapping around the Subject line:
 Subject: [Compelling subject line here]
 
 [Email body here]"""
@@ -224,7 +226,7 @@ def generate_with_llm(
         return tmpl_generate(contact, mode=mode, regen_count=regen_count)
 
     except Exception as exc:
-        print(f"  [ERROR] Groq API call failed with model '{model_name}': {exc}")
+        print(f"  [ERROR] Groq API call failed (timeout / error) with model '{model_name}': {exc}")
         traceback.print_exc()
 
         # Try secondary active model if primary failed
