@@ -1,16 +1,20 @@
 """Unit tests for Phase 5: LLM Rewriting, Gmail API, and Stretch Features."""
 import csv
+import base64
 import io
 import os
 import shutil
 import tempfile
 import unittest
+from email import policy
+from email.parser import BytesParser
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from src.closer.config import settings
 from src.closer.delivery import create_draft, create_gmail_draft, send_email, send_gmail_message
-from src.closer.delivery.gmail import get_gmail_service
+from src.closer.delivery.gmail import _build_raw_message, get_gmail_service
+from src.closer.delivery.smtp import _build_message as build_smtp_message
 from src.closer.generation import (
     check_spam_risk,
     generate_email,
@@ -189,6 +193,45 @@ class TestPhase5LLM(unittest.TestCase):
 class TestPhase5GmailAPI(unittest.TestCase):
     """Tests for Gmail API delivery and draft creation (Criteria 5G.1 - 5G.4)."""
 
+    @patch("src.closer.delivery.gmail.settings")
+    def test_raw_message_serializes_utf8_headers_and_plain_text(self, mock_settings) -> None:
+        """The Gmail raw payload contains parseable UTF-8 MIME."""
+        mock_settings.SENDER_NAME = "Alex Résumé"
+        mock_settings.SMTP_USER = "alex@example.com"
+        raw = _build_raw_message(
+            "priya@example.net",
+            "Résumé for the ingénieur role",
+            "Bonjour, Priya.\n\nJe vous écris au sujet du rôle d'ingénieur.",
+        )
+
+        message = BytesParser(policy=policy.default).parsebytes(base64.urlsafe_b64decode(raw))
+
+        self.assertEqual(message["From"].addresses[0].display_name, "Alex Résumé")
+        self.assertEqual(message["From"].addresses[0].addr_spec, "alex@example.com")
+        self.assertEqual(message["To"].addresses[0].addr_spec, "priya@example.net")
+        self.assertEqual(str(message["Subject"]), "Résumé for the ingénieur role")
+        self.assertEqual(message.get_content_type(), "text/plain")
+        self.assertEqual(message.get_content_charset(), "utf-8")
+        self.assertIn("rôle d'ingénieur", message.get_content())
+        self.assertIsNotNone(message["Date"])
+        self.assertIsNotNone(message["Message-ID"])
+
+    @patch("src.closer.delivery.smtp.settings")
+    def test_smtp_fallback_message_uses_utf8_and_rfc_headers(self, mock_settings) -> None:
+        mock_settings.SENDER_NAME = "Alex Résumé"
+        mock_settings.SMTP_USER = "alex@example.com"
+        message = build_smtp_message(
+            "priya@example.net",
+            "Résumé for the ingénieur role",
+            "Bonjour, Priya.\n\nJe vous écris au sujet du rôle d'ingénieur.",
+        )
+        parsed = BytesParser(policy=policy.default).parsebytes(message.as_bytes())
+
+        self.assertEqual(parsed.get_content_charset(), "utf-8")
+        self.assertIn("rôle d'ingénieur", parsed.get_content())
+        self.assertIsNotNone(parsed["Date"])
+        self.assertIsNotNone(parsed["Message-ID"])
+
     def test_empty_draft_body_detected_before_api(self) -> None:
         """Empty draft body is rejected before API call (EC-4.7, Criterion 5G.3)."""
         with patch("sys.stdout", new=io.StringIO()):
@@ -218,6 +261,8 @@ class TestPhase5GmailAPI(unittest.TestCase):
     def test_gmail_api_draft_creation_success(self, mock_settings) -> None:
         """Successful draft creation returns drafted status and draft_id (Criterion 5G.1)."""
         mock_settings.DRY_RUN = False
+        mock_settings.SENDER_NAME = "Alex"
+        mock_settings.SMTP_USER = "alex@example.com"
         mock_service = MagicMock()
         mock_draft = {"id": "draft_xyz123"}
         mock_service.users().drafts().create().execute.return_value = mock_draft
@@ -240,6 +285,8 @@ class TestPhase5GmailAPI(unittest.TestCase):
         import httplib2
 
         mock_settings.DRY_RUN = False
+        mock_settings.SENDER_NAME = "Alex"
+        mock_settings.SMTP_USER = "alex@example.com"
         mock_service = MagicMock()
         resp = httplib2.Response({"status": "429"})
         mock_service.users().drafts().create().execute.side_effect = HttpError(resp, b"Rate Limit Exceeded")

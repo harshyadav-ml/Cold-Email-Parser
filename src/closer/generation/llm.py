@@ -45,7 +45,7 @@ def build_prompt(
     note = c.get("personalization_note", "N/A")
     candidate = c.get("candidate_name", "Harsh Yadav")
     background = c.get("candidate_background", "Python developer and AI engineer")
-    portfolio = c.get("portfolio_url", "https://github.com/alexchen")
+    portfolio = c.get("portfolio_url", "")
 
     mode_lower = (mode or "standard").lower().strip()
 
@@ -105,7 +105,7 @@ Recipient Name: {recipient}
 Personalization Context: {note}
 Candidate Name: {candidate}
 Candidate Background: {background}
-Candidate Portfolio / Code: {portfolio}
+Candidate Portfolio / Code: {portfolio or "Not provided; do not invent or add a link"}
 
 {mode_instruction}
 
@@ -117,7 +117,8 @@ STRICT WRITING RULES:
 2. Hook in the very first sentence. Use natural phrasing (e.g., 'I saw that [Company] is hiring for...' or 'I noticed you are expanding your team for...').
 3. Sound conversational, human, and genuine: write peer-to-peer and avoid salesy buzzwords ('synergy', 'leverage', 'spearhead', 'thrilled to apply').
 4. No fabricated or exaggerated claims (never invent referrals, prior calls, or mutual acquaintances).
-5. Output MUST follow this exact format with NO markdown wrapping around the Subject line:
+5. Do not imply that the sender has followed the company, reviewed its work, or knows the recipient unless the provided personalization context explicitly supports that claim. Do not invent a portfolio URL.
+6. Output MUST follow this exact format with NO markdown wrapping around the Subject line:
 Subject: [Compelling subject line here]
 
 [Email body here]"""

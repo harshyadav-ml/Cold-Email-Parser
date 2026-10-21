@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from src.closer.config import settings
-from src.closer.delivery.gmail import create_gmail_draft, send_gmail_message
+from src.closer.delivery.gmail import create_gmail_draft, send_gmail_message, verify_sender_alignment
 from src.closer.delivery.smtp import (
     create_draft as smtp_create_draft,
     send_email as smtp_send_email,
@@ -30,4 +30,5 @@ __all__ = [
     "send_gmail_message",
     "smtp_create_draft",
     "smtp_send_email",
+    "verify_sender_alignment",
 ]

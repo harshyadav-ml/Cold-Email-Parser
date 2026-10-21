@@ -125,16 +125,16 @@ def _build_template_email(contact: dict, mode: str = "standard", cycle_index: in
     if mode_lower == "technical":
         if idx == 0:
             subj = f"Engineering inquiry: {role} at {company}"
-            bdy = f"Hi {recipient_name},\n\nI saw that {company} is hiring for the {role} position and wanted to get in touch.{note_clause}\n\nMy background is centered on {background}, focusing on clean system architecture, API performance, and automated testing. Given the engineering challenges {company} is tackling, I'd love to contribute to your core initiatives.\n\nWould you be open to a brief 5-minute technical chat {time_phrase}?\n\nBest regards,\n{candidate}{port_line}"
+            bdy = f"Hi {recipient_name},\n\nI saw that {company} is hiring for the {role} position and wanted to get in touch.{note_clause}\n\nMy background is centered on {background}, focusing on clean system architecture, API performance, and automated testing. I'd welcome the opportunity to apply that experience to the {role} position.\n\nWould you be open to a brief 5-minute technical chat {time_phrase}?\n\nBest regards,\n{candidate}{port_line}"
         elif idx == 1:
             subj = f"Inquiry regarding {company}'s {role} opening"
-            bdy = f"Hi {recipient_name},\n\nI've been following what your team is building at {company} and saw the open {role} role.{note_clause}\n\nAs a developer focused on {background}, I've engineered backend services with thorough testing, observability, and modular designs. I'd love to bring that hands-on experience to your team.\n\nWould you be open to a quick 5-minute chat, or taking a look at a recent project repo?\n\nBest regards,\n{candidate}{port_line}"
+            bdy = f"Hi {recipient_name},\n\nI saw the {role} opening at {company} and wanted to introduce myself.{note_clause}\n\nAs a developer focused on {background}, I've engineered backend services with thorough testing, observability, and modular designs. I'd love to bring that hands-on experience to your team.\n\nWould you be open to a quick 5-minute chat, or taking a look at a recent project repo?\n\nBest regards,\n{candidate}{port_line}"
         elif idx == 2:
             subj = f"Backend engineering for {company}'s {role} team"
-            bdy = f"Hi {recipient_name},\n\nI was looking into {company}'s engineering stack and noticed you are expanding the team for the {role} position.{note_clause}\n\nI specialize in {background}, building resilient pipelines and maintainable microservices. The technical roadmap at {company} really caught my interest, and I'd love to help tackle upcoming engineering milestones.\n\nCould we jump on a brief 5-minute call {time_phrase} to discuss?\n\nBest regards,\n{candidate}{port_line}"
+            bdy = f"Hi {recipient_name},\n\nI saw the {role} opening at {company} and wanted to reach out.{note_clause}\n\nI specialize in {background}, building resilient pipelines and maintainable microservices. I'd welcome the chance to discuss how that experience could fit the role.\n\nCould we jump on a brief 5-minute call {time_phrase} to discuss?\n\nBest regards,\n{candidate}{port_line}"
         elif idx == 3:
             subj = f"{candidate} — inquiry regarding {company} {role}"
-            bdy = f"Hi {recipient_name},\n\nI noticed that {company} is growing and currently looking for a {role}.{note_clause}\n\nWith a strong focus on {background}, I build fault-tolerant backend services and automated testing workflows. I would love to bring these engineering practices to your team for the {role} position.\n\nAre you available for a brief 5-minute conversation {time_phrase}?\n\nBest regards,\n{candidate}{port_line}"
+            bdy = f"Hi {recipient_name},\n\nI saw that {company} is hiring for a {role}.{note_clause}\n\nWith a strong focus on {background}, I build fault-tolerant backend services and automated testing workflows. I would love to bring these engineering practices to your team for the {role} position.\n\nAre you available for a brief 5-minute conversation {time_phrase}?\n\nBest regards,\n{candidate}{port_line}"
         else:
             subj = f"Technical inquiry: {role} at {company}"
             bdy = f"Hi {recipient_name},\n\nI saw that {company} is hiring for the {role} role and wanted to reach out directly.{note_clause}\n\nI've worked extensively with {background}, building reliable services and developer tooling. I'd welcome the chance to discuss how I could contribute to what your engineering team is building.\n\n{cta}\n\nBest regards,\n{candidate}{port_line}"
@@ -150,9 +150,9 @@ def _build_template_email(contact: dict, mode: str = "standard", cycle_index: in
             bdy = f"Hi {recipient_name},\n\nChecking in on my previous email regarding the {role} opening at {company}.\n\nI'm still very interested in contributing my background in {background} to your team. I'd be happy to send over a quick code sample or project walkthrough if helpful.\n\nAppreciate your time.\n\nBest,\n{candidate}{port_line}"
         elif idx == 2:
             subj = f"Quick follow-up regarding {company} {role}"
-            bdy = f"Hi {recipient_name},\n\nHope your week is going well. I wanted to circle back briefly on my note regarding the {role} position at {company}.\n\nGiven your team's current focus, I'd love to share a short overview of my latest work if you have a moment.\n\nThanks,\n{candidate}{port_line}"
+            bdy = f"Hi {recipient_name},\n\nHope your week is going well. I wanted to circle back briefly on my note regarding the {role} position at {company}.\n\nI'd be happy to share a short overview of my latest work if useful.\n\nThanks,\n{candidate}{port_line}"
         elif idx == 3:
-            subj = f"Re: {role} opening at {company}"
+            subj = f"Following up on the {role} opening at {company}"
             bdy = f"Hi {recipient_name},\n\nTouching base one last time regarding the {role} role at {company}.\n\nIf the position is still open, I'd welcome the chance to speak with the hiring manager or engineering lead.\n\nBest regards,\n{candidate}{port_line}"
         else:
             subj = f"Gentle nudge: {role} at {company}"
@@ -171,10 +171,10 @@ def _build_template_email(contact: dict, mode: str = "standard", cycle_index: in
         bdy = f"Hi {recipient_name},\n\nI'm reaching out regarding the open {role} position at {company}.{note_clause}\n\nMy work revolves around {background}, building end-to-end solutions that are practical and reliable. I'd love the opportunity to contribute directly to the technical roadmap at {company}.\n\nWould you be open to a brief 5-minute chat or taking a quick look at my code?\n\nBest,\n{candidate}{port_line}"
     elif idx == 3:
         subj = f"Exploring {role} opportunities at {company}"
-        bdy = f"Hi {recipient_name},\n\nI've been following what {company} is building and saw that you're looking for a {role}.{note_clause}\n\nI'm {candidate}, an engineer with a strong background in {background}. The problems your team is working on align closely with the kind of systems I enjoy building.\n\nDo you have a few minutes {time_phrase} for a brief chat or to look over my portfolio?\n\nBest,\n{candidate}{port_line}"
+        bdy = f"Hi {recipient_name},\n\nI saw the {role} opening at {company} and wanted to introduce myself.{note_clause}\n\nI'm {candidate}, an engineer with a background in {background}. The role looks relevant to the work I have been doing.\n\nDo you have a few minutes {time_phrase} for a brief chat or to look over my portfolio?\n\nBest,\n{candidate}{port_line}"
     else:
         subj = f"Introduction re: {role} role at {company}"
-        bdy = f"Hi {recipient_name},\n\nI came across the {role} opening at {company} and wanted to introduce myself.{note_clause}\n\nI'm {candidate} — I build production systems around {background} and I'm really excited about what {company} is working on.\n\n{cta}\n\nBest,\n{candidate}{port_line}"
+        bdy = f"Hi {recipient_name},\n\nI came across the {role} opening at {company} and wanted to introduce myself.{note_clause}\n\nI'm {candidate} — I build production systems around {background}, and this role looks relevant to my experience.\n\n{cta}\n\nBest,\n{candidate}{port_line}"
 
     return subj, bdy.strip()
 

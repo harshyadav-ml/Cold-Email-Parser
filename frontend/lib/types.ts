@@ -14,7 +14,7 @@ export interface ContactRecord {
 export interface EmailQuality {
   score: number;
   word_count: number;
-  spam_risk: "low" | "medium" | "high";
+  spam_risk: "low" | "medium" | "high" | "unknown";
   flags: string[];
   hallucination_guard: string;
 }

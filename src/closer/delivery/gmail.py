@@ -9,8 +9,12 @@ from __future__ import annotations
 import base64
 import json
 import os
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import random
+import time
+from datetime import datetime, timezone
+from email import policy
+from email.message import EmailMessage
+from email.utils import format_datetime, formataddr, make_msgid
 from pathlib import Path
 from typing import Any, Optional
 
@@ -29,18 +33,25 @@ SCOPES = [
 
 def _build_raw_message(to: str, subject: str, body: str) -> str:
     """Build URL-safe base64-encoded MIME string for Gmail API."""
-    msg = MIMEMultipart()
-    sender_name = settings.SENDER_NAME
-    sender_email = settings.SMTP_USER
+    msg = EmailMessage(policy=policy.SMTP)
+    sender_name = (settings.SENDER_NAME or "").strip()
+    sender_email = (settings.SMTP_USER or "").strip()
     if sender_name and sender_email:
-        msg["From"] = f"{sender_name} <{sender_email}>"
+        msg["From"] = formataddr((sender_name, sender_email))
     elif sender_email:
         msg["From"] = sender_email
 
     msg["To"] = to
     msg["Subject"] = subject
-    msg.attach(MIMEText(body, "plain"))
-    return base64.urlsafe_b64encode(msg.as_bytes()).decode("utf-8")
+    msg["Date"] = format_datetime(datetime.now(timezone.utc))
+    sender_domain = sender_email.rpartition("@")[2] or None
+    msg["Message-ID"] = make_msgid(domain=sender_domain)
+    msg["Reply-To"] = sender_email
+    msg["List-Unsubscribe"] = f"<mailto:{sender_email}?subject=unsubscribe>"
+    msg["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+    msg["X-Mailer"] = "The Closer v1.0"
+    msg.set_content(body, subtype="plain", charset="utf-8")
+    return base64.urlsafe_b64encode(msg.as_bytes(policy=policy.SMTP)).decode("ascii")
 
 
 def get_gmail_service(token_path: Optional[Path | str] = None) -> Any:
@@ -183,6 +194,34 @@ def get_gmail_service(token_path: Optional[Path | str] = None) -> Any:
         return None
 
 
+def verify_sender_alignment(service=None) -> bool:
+    """Verify that the OAuth token's email matches SMTP_USER (From header).
+
+    Misalignment causes Gmail to rewrite headers or flag as spoofing,
+    which is the most common cause of API-sent emails landing in spam.
+    """
+    srv = service or get_gmail_service()
+    if not srv:
+        return False
+    try:
+        profile = srv.users().getProfile(userId="me").execute()
+        token_email = profile.get("emailAddress", "").strip().lower()
+        configured_email = (settings.SMTP_USER or "").strip().lower()
+        if token_email != configured_email:
+            print(
+                f"  [CRITICAL] Sender mismatch detected!\n"
+                f"    OAuth token authenticated as: {token_email}\n"
+                f"    SMTP_USER (From header):      {configured_email}\n"
+                f"    This WILL cause spam filtering. Update SMTP_USER in .env to match."
+            )
+            return False
+        print(f"  [OK] Sender alignment verified: {token_email}")
+        return True
+    except Exception as exc:
+        print(f"  [WARNING] Could not verify sender alignment: {exc}")
+        return False
+
+
 def create_gmail_draft(
     to: str,
     subject: str,
@@ -279,6 +318,10 @@ def send_gmail_message(
     if settings.DRY_RUN:
         print("  DRY_RUN=true — email not sent (simulated Gmail API send)")
         return {"status": "dry_run", "message_id": None, "error_message": ""}
+
+    # Throttle: random delay to avoid burst-detection spam triggers
+    delay = random.uniform(3.0, 8.0)
+    time.sleep(delay)
 
     srv = service or get_gmail_service()
     if not srv:

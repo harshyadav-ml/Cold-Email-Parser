@@ -182,7 +182,7 @@ export async function regenerateEmail(
         },
         {
           subject: `Harsh Yadav for ${company} ${role}`,
-          body: `Hi ${name},\n\nSaw ${company}'s recent work in this space.\n\nI'm an engineer focused on automation and AI agents. I'd love to help tackle immediate engineering goals for your team.\n\nBest,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
+            body: `Hi ${name},\n\nI saw the ${role} opening at ${company} and wanted to introduce myself.\n\nI'm an engineer focused on automation and AI agents. I'd welcome the chance to discuss whether my experience could fit the role.\n\nBest,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
         },
         {
           subject: `${company} ${role} — quick intro`,
@@ -190,25 +190,25 @@ export async function regenerateEmail(
         },
         {
           subject: `Brief inquiry: ${role} @ ${company}`,
-          body: `Hi ${name},\n\nLoved your recent updates at ${company}.\n\nI build reliable backend systems. Would you have 3 minutes to review my repository or point me to the hiring lead?\n\nBest,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
+          body: `Hi ${name},\n\nI saw the ${role} opening at ${company} and wanted to reach out.\n\nI build reliable backend systems. Would you have a few minutes to review my repository or point me to the hiring lead?\n\nBest,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
         },
       ],
       technical: [
         {
           subject: `Scaling backend systems for ${company}'s ${role}`,
-          body: `Hi ${name},\n\nSaw ${company}'s engineering progress on ${role} challenges.\n\nMy background is centered on distributed architecture and modular API design. I'd love to help eliminate pipeline bottlenecks.\n\nDo you have 5 minutes this week for a technical chat?\n\nBest regards,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
+          body: `Hi ${name},\n\nI saw the ${role} opening at ${company} and wanted to introduce myself.\n\nMy background is centered on distributed architecture and modular API design. I'd welcome the chance to discuss how that experience fits the role.\n\nDo you have 5 minutes this week for a technical chat?\n\nBest regards,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
         },
         {
           subject: `Architecture & telemetry discussion for ${company} ${role}`,
-          body: `Hi ${name},\n\nFollowing ${company}'s technical footprint.\n\nI've engineered high-throughput services with rigorous telemetry and automated pipelines. Would you be open to reviewing my benchmarks?\n\nBest regards,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
+          body: `Hi ${name},\n\nI saw the ${role} opening at ${company} and wanted to reach out.\n\nI've engineered high-throughput services with telemetry and automated pipelines. Would you be open to reviewing a relevant project?\n\nBest regards,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
         },
         {
           subject: `Low-latency pipelines <> ${company} ${role}`,
-          body: `Hi ${name},\n\nInspecting ${company}'s stack and your open ${role} requirements.\n\nI specialize in optimizing pipeline throughput and building resilient microservices. Could we jump on a brief 10-minute debrief this week?\n\nBest regards,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
+          body: `Hi ${name},\n\nI saw the ${role} opening at ${company} and wanted to introduce myself.\n\nI specialize in optimizing pipeline throughput and building resilient microservices. Could we have a brief 10-minute conversation this week?\n\nBest regards,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
         },
         {
           subject: `Systems infrastructure inquiry: ${company} ${role}`,
-          body: `Hi ${name},\n\nNoticed ${company}'s recent technical milestones in production.\n\nI build fault-tolerant backend services and automated testing harnesses. Are you available for a brief engineering discussion this Thursday?\n\nBest regards,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
+          body: `Hi ${name},\n\nI saw the ${role} opening at ${company} and wanted to reach out.\n\nI build fault-tolerant backend services and automated testing harnesses. Are you available for a brief engineering discussion this week?\n\nBest regards,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
         },
       ],
       followup: [
@@ -225,7 +225,7 @@ export async function regenerateEmail(
           body: `Hi ${name},\n\nHope your week is going well. Wanted to circle back on my note regarding the ${role} position at ${company}.\n\nI'd love to share a 2-minute walkthrough of my latest work if you have a moment.\n\nThanks,\nHarsh Yadav`,
         },
         {
-          subject: `Re: ${role} opening at ${company}`,
+          subject: `Following up on the ${role} opening at ${company}`,
           body: `Hi ${name},\n\nTouching base one last time regarding the ${role} role at ${company}.\n\nIf the position is still open, I'd welcome the chance to speak with the hiring manager.\n\nBest regards,\nHarsh Yadav`,
         },
       ],
@@ -244,7 +244,7 @@ export async function regenerateEmail(
         },
         {
           subject: `Exploring ${role} opportunities at ${company}`,
-          body: `Hi ${name},\n\nI've been following what ${company} is building and saw that you're looking for a ${role}.\n\nYour team's engineering velocity aligns closely with the tools I love building. Do you have a moment this week for a brief chat?\n\nBest,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
+          body: `Hi ${name},\n\nI saw the ${role} opening at ${company} and wanted to introduce myself.\n\nThe ${role} position at ${company} looks relevant to the systems I build. Do you have a moment this week for a brief chat?\n\nBest,\nHarsh Yadav\nhttps://github.com/harshyadav-ml`,
         },
       ],
     };
@@ -257,11 +257,11 @@ export async function regenerateEmail(
       subject: selected.subject,
       body: selected.body,
       quality: {
-        score: 9.2,
+        score: 0,
         word_count: selected.body.trim().split(/\s+/).length,
-        spam_risk: "low",
-        flags: ["Offline template variant cycled successfully"],
-        hallucination_guard: "Verified",
+        spam_risk: "unknown",
+        flags: ["Server-side quality and hallucination checks did not run"],
+        hallucination_guard: "Not checked",
       },
     };
   }

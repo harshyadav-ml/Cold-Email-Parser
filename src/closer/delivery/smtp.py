@@ -6,8 +6,10 @@ src.closer.config.settings — never from os.getenv() directly.
 from __future__ import annotations
 
 import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+from datetime import datetime, timezone
+from email import policy
+from email.message import EmailMessage
+from email.utils import format_datetime, formataddr, make_msgid
 
 from src.closer.config import settings
 
@@ -46,18 +48,25 @@ def _get_smtp_connection() -> smtplib.SMTP:
         raise
 
 
-def _build_message(to: str, subject: str, body: str) -> MIMEMultipart:
+def _build_message(to: str, subject: str, body: str) -> EmailMessage:
     """Construct a MIME message ready for SMTP transmission."""
-    msg = MIMEMultipart()
+    msg = EmailMessage(policy=policy.SMTP)
     sender_name = (settings.SENDER_NAME or "").strip()
     smtp_user = (settings.SMTP_USER or "").strip()
     if sender_name:
-        msg["From"] = f"{sender_name} <{smtp_user}>"
+        msg["From"] = formataddr((sender_name, smtp_user))
     else:
         msg["From"] = smtp_user
     msg["To"] = to
     msg["Subject"] = subject
-    msg.attach(MIMEText(body, "plain"))
+    msg["Date"] = format_datetime(datetime.now(timezone.utc))
+    sender_domain = smtp_user.rpartition("@")[2] or None
+    msg["Message-ID"] = make_msgid(domain=sender_domain)
+    msg["Reply-To"] = smtp_user
+    msg["List-Unsubscribe"] = f"<mailto:{smtp_user}?subject=unsubscribe>"
+    msg["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+    msg["X-Mailer"] = "The Closer v1.0"
+    msg.set_content(body, subtype="plain", charset="utf-8")
     return msg
 
 
