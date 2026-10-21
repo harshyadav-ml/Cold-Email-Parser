@@ -1,0 +1,5 @@
+{
+  "python.defaultInterpreterPath": "/Users/harsh/venv/bin/python",
+  "python.analysis.extraPaths": [],
+  "css.lint.unknownAtRules": "ignore"
+}

@@ -60,7 +60,6 @@ def _sync_root_symlink(log_file: Path) -> None:
         pass
 
 
-
 def _ensure_header(target_file: Path) -> None:
     """Create the CSV file with headers if it does not exist or is empty (EC-5.3)."""
     try:

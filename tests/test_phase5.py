@@ -84,7 +84,6 @@ class TestPhase5LLM(unittest.TestCase):
         mock_llm_settings.LLM_MODEL = "llama-3.3-70b-versatile"
         mock_llm_settings.LLM_TIMEOUT = 30.0
 
-
         mock_client = MagicMock()
         mock_groq_cls.return_value = mock_client
         mock_choice = MagicMock()
@@ -172,7 +171,7 @@ class TestPhase5LLM(unittest.TestCase):
 
         with patch("sys.stdout", new=io.StringIO()) as fake_out:
             subj, body = generate_with_llm(self.sample_contact)
-            output = fake_out.getvalue()     
+            output = fake_out.getvalue()
 
         self.assertIn("timed out", output.lower())
         self.assertIn("Acme AI", subj)
@@ -519,7 +518,6 @@ class TestPhase5StretchFeatures(unittest.TestCase):
         summary = get_log_summary(log_file)
         self.assertEqual(summary.get("sent"), 2)
         self.assertEqual(summary.get("skipped_limit"), 1)
-
 
 
 if __name__ == "__main__":

@@ -129,7 +129,6 @@ app.add_middleware(
 )
 
 
-
 # ── Pydantic Request / Response Models ────────────────────────────────
 
 class ProfilePayload(BaseModel):
@@ -292,7 +291,6 @@ def update_sender_profile(payload: ProfilePayload) -> Dict[str, Any]:
         "total_contacts": len(enhanced_contacts),
         "contacts": enhanced_contacts,
     }
-
 
 
 @app.post("/api/settings/dry-run")
@@ -532,7 +530,6 @@ def download_contacts_template(format: Literal["json", "csv"] = Query("json")) -
                 "Content-Disposition": 'attachment; filename="contacts_template.json"'
             },
         )
-
 
 
 # ── Generation & Regeneration ─────────────────────────────────────────
