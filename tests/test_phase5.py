@@ -197,7 +197,7 @@ class TestPhase5GmailAPI(unittest.TestCase):
     def test_raw_message_serializes_utf8_headers_and_plain_text(self, mock_settings) -> None:
         """The Gmail raw payload contains parseable UTF-8 MIME."""
         mock_settings.SENDER_NAME = "Alex Résumé"
-        mock_settings.SMTP_USER = "alex@example.com"
+        mock_settings.SMTP_USER = "erharshyadavjpr@gmail.com"
         raw = _build_raw_message(
             "priya@example.net",
             "Résumé for the ingénieur role",
@@ -207,7 +207,7 @@ class TestPhase5GmailAPI(unittest.TestCase):
         message = BytesParser(policy=policy.default).parsebytes(base64.urlsafe_b64decode(raw))
 
         self.assertEqual(message["From"].addresses[0].display_name, "Alex Résumé")
-        self.assertEqual(message["From"].addresses[0].addr_spec, "alex@example.com")
+        self.assertEqual(message["From"].addresses[0].addr_spec, "erharshyadavjpr@gmail.com")
         self.assertEqual(message["To"].addresses[0].addr_spec, "priya@example.net")
         self.assertEqual(str(message["Subject"]), "Résumé for the ingénieur role")
         self.assertEqual(message.get_content_type(), "text/plain")
@@ -219,7 +219,7 @@ class TestPhase5GmailAPI(unittest.TestCase):
     @patch("src.closer.delivery.smtp.settings")
     def test_smtp_fallback_message_uses_utf8_and_rfc_headers(self, mock_settings) -> None:
         mock_settings.SENDER_NAME = "Alex Résumé"
-        mock_settings.SMTP_USER = "alex@example.com"
+        mock_settings.SMTP_USER = "erharshyadavjpr@gmail.com"
         message = build_smtp_message(
             "priya@example.net",
             "Résumé for the ingénieur role",
@@ -262,7 +262,7 @@ class TestPhase5GmailAPI(unittest.TestCase):
         """Successful draft creation returns drafted status and draft_id (Criterion 5G.1)."""
         mock_settings.DRY_RUN = False
         mock_settings.SENDER_NAME = "Alex"
-        mock_settings.SMTP_USER = "alex@example.com"
+        mock_settings.SMTP_USER = "erharshyadavjpr@gmail.com"
         mock_service = MagicMock()
         mock_draft = {"id": "draft_xyz123"}
         mock_service.users().drafts().create().execute.return_value = mock_draft
@@ -286,7 +286,7 @@ class TestPhase5GmailAPI(unittest.TestCase):
 
         mock_settings.DRY_RUN = False
         mock_settings.SENDER_NAME = "Alex"
-        mock_settings.SMTP_USER = "alex@example.com"
+        mock_settings.SMTP_USER = "erharshyadavjpr@gmail.com"
         mock_service = MagicMock()
         resp = httplib2.Response({"status": "429"})
         mock_service.users().drafts().create().execute.side_effect = HttpError(resp, b"Rate Limit Exceeded")
