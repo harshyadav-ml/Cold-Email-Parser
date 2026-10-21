@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from src.closer.config import settings
+from src.closer.generation.cleaner import clean_email_body
 from src.closer.generation.template import (
     generate_email as tmpl_generate,
     validate_email,
@@ -276,6 +277,9 @@ def generate_with_llm(
     # Strip any leading markdown divider or metadata from body
     if body.startswith("---"):
         body = body.lstrip("-").strip()
+
+    # Clean single line breaks mid-sentence to allow natural wrapping on mobile
+    body = clean_email_body(body)
 
     # 8. Verify strict difference from previous state
     for offset in range(1, 6):

@@ -17,6 +17,7 @@ from src.closer.delivery.gmail import _build_raw_message, get_gmail_service
 from src.closer.delivery.smtp import _build_message as build_smtp_message
 from src.closer.generation import (
     check_spam_risk,
+    clean_email_body,
     generate_email,
     generate_followup,
     score_email,
@@ -189,6 +190,67 @@ class TestPhase5LLM(unittest.TestCase):
         clean_body = "Hi Priya, I saw Acme AI's open role and wanted to share my background. Best, Alex"
         self.assertTrue(validate_email(clean_body))
 
+    def test_clean_email_body_unwraps_single_line_breaks(self) -> None:
+        """Single line breaks mid-sentence are converted to spaces for mobile wrapping."""
+        raw_text = (
+            "Hi Priya,\n\n"
+            "I noticed Acme AI recently launched an AI workflow tool and\n"
+            "is expanding the engineering team.\n\n"
+            "Would you be open to a brief 7-minute chat?\n\n"
+            "Best,\nHarsh"
+        )
+        cleaned = clean_email_body(raw_text)
+        expected = (
+            "Hi Priya,\n\n"
+            "I noticed Acme AI recently launched an AI workflow tool and is expanding the engineering team.\n\n"
+            "Would you be open to a brief 7-minute chat?\n\n"
+            "Best, Harsh"
+        )
+        self.assertEqual(cleaned, expected)
+
+    def test_clean_email_body_preserves_double_line_breaks(self) -> None:
+        """Double line breaks (paragraph spacing) are strictly preserved."""
+        raw_text = "Paragraph 1.\n\nParagraph 2.\n\nParagraph 3."
+        self.assertEqual(clean_email_body(raw_text), raw_text)
+
+    def test_clean_email_body_handles_crlf_and_whitespace(self) -> None:
+        """CRLF and spaces around newlines are normalized cleanly."""
+        raw_text = "Line 1  \r\n  Line 2\r\n\r\nLine 3"
+        cleaned = clean_email_body(raw_text)
+        self.assertEqual(cleaned, "Line 1 Line 2\n\nLine 3")
+
+    @patch("src.closer.generation.settings")
+    @patch("src.closer.generation.llm.settings")
+    @patch("groq.Groq")
+    def test_llm_pipeline_applies_clean_email_body(self, mock_groq_cls, mock_llm_settings, mock_gen_settings) -> None:
+        """LLM generation pipeline converts mid-sentence newlines to spaces."""
+        mock_gen_settings.LLM_ENABLED = True
+        mock_gen_settings.LLM_SESSION_DISABLED = False
+        mock_llm_settings.LLM_ENABLED = True
+        mock_llm_settings.LLM_SESSION_DISABLED = False
+        mock_llm_settings.GROQ_API_KEY = "gsk_test_key"
+        mock_llm_settings.ANTHROPIC_API_KEY = ""
+        mock_llm_settings.OPENAI_API_KEY = ""
+        mock_llm_settings.LLM_MODEL = "llama-3.3-70b-versatile"
+        mock_llm_settings.LLM_TIMEOUT = 30.0
+
+        mock_client = MagicMock()
+        mock_groq_cls.return_value = mock_client
+        mock_choice = MagicMock()
+        mock_choice.message.content = (
+            "Subject: Engineering Outreach\n\n"
+            "Hi Priya,\n\n"
+            "I saw that Acme AI is hiring for Backend Engineer and\n"
+            "wanted to share my background.\n\n"
+            "Best,\nAlex"
+        )
+        mock_client.chat.completions.create.return_value.choices = [mock_choice]
+
+        subj, body = generate_email(self.sample_contact)
+        self.assertEqual(subj, "Engineering Outreach")
+        self.assertIn("Backend Engineer and wanted to share", body)
+        self.assertNotIn("Engineer and\nwanted", body)
+
 
 class TestPhase5GmailAPI(unittest.TestCase):
     """Tests for Gmail API delivery and draft creation (Criteria 5G.1 - 5G.4)."""
@@ -215,6 +277,22 @@ class TestPhase5GmailAPI(unittest.TestCase):
         self.assertIn("rôle d'ingénieur", message.get_content())
         self.assertIsNotNone(message["Date"])
         self.assertIsNotNone(message["Message-ID"])
+
+    @patch("src.closer.delivery.gmail.settings")
+    def test_build_raw_message_cleans_single_line_breaks(self, mock_settings) -> None:
+        """_build_raw_message cleans mid-sentence single newlines before encoding."""
+        mock_settings.SENDER_NAME = "Harsh"
+        mock_settings.SMTP_USER = "erharshyadavjpr@gmail.com"
+        raw = _build_raw_message(
+            "priya@example.com",
+            "Subject",
+            "Hello Priya,\n\nThis is line one and\nthis is line two.\n\nBest,\nHarsh",
+        )
+        message = BytesParser(policy=policy.default).parsebytes(base64.urlsafe_b64decode(raw))
+        self.assertEqual(
+            message.get_content().replace("\r\n", "\n").strip(),
+            "Hello Priya,\n\nThis is line one and this is line two.\n\nBest, Harsh",
+        )
 
     @patch("src.closer.delivery.smtp.settings")
     def test_smtp_fallback_message_uses_utf8_and_rfc_headers(self, mock_settings) -> None:

@@ -12,6 +12,7 @@ from email.message import EmailMessage
 from email.utils import format_datetime, formataddr, make_msgid
 
 from src.closer.config import settings
+from src.closer.generation.cleaner import clean_email_body
 
 
 # ── Internal helpers ──────────────────────────────────────────────────
@@ -50,6 +51,7 @@ def _get_smtp_connection() -> smtplib.SMTP:
 
 def _build_message(to: str, subject: str, body: str) -> EmailMessage:
     """Construct a MIME message ready for SMTP transmission."""
+    cleaned_body = clean_email_body(body)
     msg = EmailMessage(policy=policy.SMTP)
     sender_name = (settings.SENDER_NAME or "").strip()
     smtp_user = (settings.SMTP_USER or "").strip()
@@ -62,7 +64,7 @@ def _build_message(to: str, subject: str, body: str) -> EmailMessage:
     msg["Date"] = format_datetime(datetime.now(timezone.utc))
     sender_domain = smtp_user.rpartition("@")[2] or None
     msg["Message-ID"] = make_msgid(domain=sender_domain)
-    msg.set_content(body, subtype="plain", charset="utf-8")
+    msg.set_content(cleaned_body, subtype="plain", charset="utf-8")
     return msg
 
 

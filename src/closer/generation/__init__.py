@@ -6,6 +6,7 @@ based on the LLM_ENABLED setting.
 from __future__ import annotations
 
 from src.closer.config import settings
+from src.closer.generation.cleaner import clean_email_body
 from src.closer.generation.quality import check_spam_risk, score_email
 from src.closer.generation.template import (
     generate_email as generate_template_email,
@@ -26,7 +27,7 @@ def generate_email(
     """Route to the correct generation backend and return (subject, body)."""
     if settings.LLM_ENABLED and not getattr(settings, "LLM_SESSION_DISABLED", False):
         from src.closer.generation.llm import generate_with_llm
-        return generate_with_llm(
+        subj, bdy = generate_with_llm(
             contact,
             mode=mode,
             temperature=temperature,
@@ -34,8 +35,9 @@ def generate_email(
             previous_body=previous_body,
             regen_count=regen_count,
         )
+        return subj, clean_email_body(bdy)
 
-    return generate_template_email(
+    subj, bdy = generate_template_email(
         contact,
         variant=variant,
         mode=mode,
@@ -43,10 +45,12 @@ def generate_email(
         previous_subject=previous_subject,
         previous_body=previous_body,
     )
+    return subj, clean_email_body(bdy)
 
 
 __all__ = [
     "check_spam_risk",
+    "clean_email_body",
     "generate_email",
     "generate_followup",
     "generate_template_email",

@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from src.closer.config import settings
+from src.closer.generation.cleaner import clean_email_body
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[3]
 TOKEN_FILE = _PROJECT_ROOT / "token.json"
@@ -33,6 +34,7 @@ SCOPES = [
 
 def _build_raw_message(to: str, subject: str, body: str) -> str:
     """Build URL-safe base64-encoded MIME string for Gmail API."""
+    cleaned_body = clean_email_body(body)
     msg = EmailMessage(policy=policy.SMTP)
     sender_name = (settings.SENDER_NAME or "").strip()
     sender_email = (settings.SMTP_USER or "").strip()
@@ -46,7 +48,7 @@ def _build_raw_message(to: str, subject: str, body: str) -> str:
     msg["Date"] = format_datetime(datetime.now(timezone.utc))
     sender_domain = sender_email.rpartition("@")[2] or None
     msg["Message-ID"] = make_msgid(domain=sender_domain)
-    msg.set_content(body, subtype="plain", charset="utf-8")
+    msg.set_content(cleaned_body, subtype="plain", charset="utf-8")
     return base64.urlsafe_b64encode(msg.as_bytes(policy=policy.SMTP)).decode("ascii")
 
 
