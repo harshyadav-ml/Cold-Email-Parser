@@ -16,7 +16,7 @@ import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
 
@@ -356,7 +356,7 @@ def get_contacts(path: Optional[str] = None) -> Dict[str, Any]:
 @app.post("/api/contacts/upload")
 async def upload_contacts(
     request: Request,
-    mode: str = Query("replace", enum=["replace", "append"]),
+    mode: Literal["replace", "append"] = Query("replace"),
     file: Optional[UploadFile] = File(None),
 ) -> Dict[str, Any]:
     """Upload and ingest contacts from a .json or .csv file.
@@ -499,7 +499,7 @@ async def upload_contacts(
 
 
 @app.get("/api/contacts/template")
-def download_contacts_template(format: str = Query("json", enum=["json", "csv"])):
+def download_contacts_template(format: Literal["json", "csv"] = Query("json")) -> Response:
     """Stream clean, valid sample contacts template in JSON or CSV format."""
     if format.lower() == "csv":
         csv_buffer = io.StringIO()
