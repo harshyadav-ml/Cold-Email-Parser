@@ -46,10 +46,6 @@ def _build_raw_message(to: str, subject: str, body: str) -> str:
     msg["Date"] = format_datetime(datetime.now(timezone.utc))
     sender_domain = sender_email.rpartition("@")[2] or None
     msg["Message-ID"] = make_msgid(domain=sender_domain)
-    msg["Reply-To"] = sender_email
-    msg["List-Unsubscribe"] = f"<mailto:{sender_email}?subject=unsubscribe>"
-    msg["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
-    msg["X-Mailer"] = "The Closer v1.0"
     msg.set_content(body, subtype="plain", charset="utf-8")
     return base64.urlsafe_b64encode(msg.as_bytes(policy=policy.SMTP)).decode("ascii")
 
@@ -319,8 +315,8 @@ def send_gmail_message(
         print("  DRY_RUN=true — email not sent (simulated Gmail API send)")
         return {"status": "dry_run", "message_id": None, "error_message": ""}
 
-    # Throttle: random delay to avoid burst-detection spam triggers
-    delay = random.uniform(3.0, 8.0)
+    # Throttle: random human-like delay (60–180s) to avoid burst-detection spam triggers
+    delay = random.uniform(60.0, 180.0)
     time.sleep(delay)
 
     srv = service or get_gmail_service()

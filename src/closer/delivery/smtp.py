@@ -62,10 +62,6 @@ def _build_message(to: str, subject: str, body: str) -> EmailMessage:
     msg["Date"] = format_datetime(datetime.now(timezone.utc))
     sender_domain = smtp_user.rpartition("@")[2] or None
     msg["Message-ID"] = make_msgid(domain=sender_domain)
-    msg["Reply-To"] = smtp_user
-    msg["List-Unsubscribe"] = f"<mailto:{smtp_user}?subject=unsubscribe>"
-    msg["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
-    msg["X-Mailer"] = "The Closer v1.0"
     msg.set_content(body, subtype="plain", charset="utf-8")
     return msg
 
